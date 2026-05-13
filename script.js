@@ -238,7 +238,7 @@ function speakText(text) {
   setVoiceState("speaking");
 
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang   = "en-IN";
+  utter.lang   = "en-US";
   utter.rate   = 1.2;
   utter.pitch  = 1.0;
   utter.volume = 1.0;
@@ -247,10 +247,10 @@ function speakText(text) {
   const voices = availableVoices.length ? availableVoices : synth.getVoices();
   
   const voicePriority = [
-    "Microsoft Heera",
-    "Microsoft Ravi",
-    "Google हिन्दी",
-    "Google UK English Female"
+    "Google US English",
+    "Microsoft David",
+    "Microsoft Zira",
+    "en-US"
   ];
 
   let selectedVoice = null;
@@ -259,9 +259,9 @@ function speakText(text) {
     if (selectedVoice) break;
   }
 
-  // Fallback to first available en-IN or any en voice
+  // Fallback to first available en-US or any en voice
   if (!selectedVoice) {
-    selectedVoice = voices.find(v => v.lang === "en-IN") || voices.find(v => v.lang.startsWith("en")) || voices[0];
+    selectedVoice = voices.find(v => v.lang === "en-US") || voices.find(v => v.lang.startsWith("en")) || voices[0];
   }
 
   if (selectedVoice) {

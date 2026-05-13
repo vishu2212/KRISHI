@@ -449,12 +449,166 @@ body {
 }
 
 /* ─── Responsive ─── */
+
+/* Tablet & small desktop */
+@media (max-width: 768px) {
+  .page-container { padding: 20px 14px; }
+  .hero-card { padding: 40px 20px 0; border-radius: 22px; }
+  .features-grid { gap: 12px; }
+  .feature-card { padding: 22px; }
+  .orb-floor-glow { width: 360px; height: 180px; }
+}
+
+/* Mobile */
 @media (max-width: 640px) {
-  .page-container { padding: 16px 12px; }
-  .hero-card { padding: 36px 16px 0; border-radius: 20px; }
-  .features-grid { grid-template-columns: 1fr; }
+  .page-container { padding: 14px 10px; }
+
+  /* Navbar — compact */
+  .nav-pill {
+    padding: 8px 14px;
+    margin-bottom: 24px;
+    gap: 6px;
+  }
   .nav-brand { display: none; }
+  .logo-mark { width: 26px; height: 26px; }
+  .nav-right { gap: 6px; }
+  .try-btn,
+  .ghost-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-height: 38px;
+  }
+
+  /* Hero */
+  .hero-card {
+    padding: 28px 14px 0;
+    border-radius: 18px;
+  }
+  .hero-title { font-size: clamp(22px, 6vw, 32px); }
+
+  /* Orb — scaled down */
+  .orb-area { margin-top: 28px; }
   .orb-wrapper { width: 220px; height: 220px; }
   .orb-wrapper canvas { width: 220px; height: 220px; }
-  .orb-floor-glow { width: 320px; height: 160px; }
+  .orb-top-glow { width: 200px; height: 110px; }
+  .orb-floor-glow { width: 280px; height: 140px; bottom: -50px; }
+
+  /* Orb mic button — bigger for touch */
+  .orb-mic-btn {
+    width: 52px;
+    height: 52px;
+  }
+  .orb-mic-icon { width: 20px; height: 20px; }
+  .orb-stop-icon { width: 16px; height: 16px; }
+
+  /* CTA */
+  .cta-area { margin-top: 18px; margin-bottom: 18px; }
+  .speak-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-height: 48px;
+  }
+
+  /* Transcript */
+  .feedback-area { margin-bottom: 24px; padding: 0 8px; }
+  .transcript-box {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 12px;
+    max-width: 100%;
+  }
+
+  /* Error */
+  .error-box {
+    font-size: 12px;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  /* Text input — full width & touch friendly */
+  .text-input-area {
+    padding: 0 8px;
+    margin-bottom: 24px;
+    max-width: 100%;
+  }
+  .text-input-area input {
+    padding: 14px 16px;
+    font-size: 16px; /* prevents iOS zoom on focus */
+    border-radius: 10px;
+    min-height: 48px;
+  }
+  .send-btn {
+    padding: 14px 18px;
+    font-size: 14px;
+    border-radius: 10px;
+    min-height: 48px;
+  }
+
+  /* Feature cards */
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .feature-card {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  .feature-title { font-size: 15px; }
+  .feature-desc { font-size: 13px; }
+}
+
+/* Small phones (iPhone SE, Galaxy S series) */
+@media (max-width: 380px) {
+  .page-container { padding: 10px 8px; }
+
+  .nav-pill { padding: 6px 10px; margin-bottom: 18px; }
+  .try-btn,
+  .ghost-btn {
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
+  .hero-card {
+    padding: 22px 10px 0;
+    border-radius: 14px;
+    border-width: 1px;
+  }
+  .hero-title { font-size: clamp(18px, 5.5vw, 26px); }
+
+  .orb-area { margin-top: 20px; }
+  .orb-wrapper { width: 180px; height: 180px; }
+  .orb-wrapper canvas { width: 180px; height: 180px; }
+  .orb-top-glow { width: 160px; height: 90px; }
+  .orb-floor-glow { width: 220px; height: 110px; bottom: -40px; }
+
+  .orb-mic-btn { width: 48px; height: 48px; }
+
+  .cta-area { margin-top: 14px; margin-bottom: 14px; }
+  .speak-btn { padding: 10px 20px; font-size: 13px; }
+
+  .feedback-area { margin-bottom: 18px; padding: 0 4px; }
+  .transcript-box { padding: 8px 12px; font-size: 12.5px; }
+
+  .text-input-area { padding: 0 4px; margin-bottom: 18px; gap: 6px; }
+  .text-input-area input { padding: 12px 14px; }
+  .send-btn { padding: 12px 14px; font-size: 13px; }
+
+  .features-grid { margin-top: 20px; gap: 8px; }
+  .feature-card { padding: 16px; border-radius: 14px; }
+  .feature-title { font-size: 14px; }
+  .feature-desc { font-size: 12px; line-height: 1.6; }
+
+  .bottom-glow { width: 500px; height: 250px; filter: blur(35px); }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .orb-wrapper { width: 160px; height: 160px; }
+  .orb-wrapper canvas { width: 160px; height: 160px; }
+  .orb-area { margin-top: 16px; }
+  .orb-floor-glow { width: 200px; height: 100px; bottom: -30px; }
+  .hero-card { padding: 20px 16px 0; }
+  .cta-area { margin-top: 12px; margin-bottom: 12px; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); margin-top: 16px; }
 }

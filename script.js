@@ -46,13 +46,34 @@ const gameState = {
   const canvas = document.getElementById("particleSphere");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
-  const SIZE = 280;
-  const dpr  = window.devicePixelRatio || 1;
-  canvas.width  = SIZE * dpr;
-  canvas.height = SIZE * dpr;
-  ctx.scale(dpr, dpr);
 
-  const cx = SIZE / 2, cy = SIZE / 2, R = SIZE * 0.38;
+  // Dynamically get size from CSS-styled wrapper
+  const wrapper = canvas.parentElement;
+  function getOrbSize() {
+    return wrapper ? wrapper.clientWidth : 280;
+  }
+
+  let SIZE = getOrbSize();
+  const dpr  = window.devicePixelRatio || 1;
+
+  function resizeCanvas() {
+    SIZE = getOrbSize();
+    canvas.width  = SIZE * dpr;
+    canvas.height = SIZE * dpr;
+    canvas.style.width  = SIZE + "px";
+    canvas.style.height = SIZE + "px";
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    ctx.scale(dpr, dpr);
+  }
+  resizeCanvas();
+
+  // Re-init on resize (debounced)
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeCanvas, 150);
+  });
+
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
 
   // Generate 320 Fibonacci sphere points
@@ -80,8 +101,9 @@ const gameState = {
     }));
   }
 
-  // 3D → 2D projection with rotation
+  // 3D → 2D projection with rotation (uses live SIZE)
   function project(px, py, pz, rot) {
+    const cx = SIZE / 2, cy = SIZE / 2, R = SIZE * 0.38;
     const cosR = Math.cos(rot), sinR = Math.sin(rot);
     const rx = px*cosR + pz*sinR, ry = py, rz = -px*sinR + pz*cosR;
     const cosT = Math.cos(0.2), sinT = Math.sin(0.2);
@@ -102,6 +124,8 @@ const gameState = {
   let rot = 0, time = 0;
 
   function draw(t) {
+    const R = SIZE * 0.38;
+    const cx = SIZE / 2, cy = SIZE / 2;
     ctx.clearRect(0, 0, SIZE, SIZE);
     const st = voiceState;
     const p  = stateParams(st, t);

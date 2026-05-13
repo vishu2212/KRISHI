@@ -1,0 +1,460 @@
+/* ====================================================
+   KIYARI AI — Voice Assistant Stylesheet
+   Deep dark theme with blue-cyan accent orb
+   ==================================================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'DM Sans', 'Syne', sans-serif;
+  background: #07091a;
+  color: #fff;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Bottom Ambient Glow ─── */
+.bottom-glow {
+  position: fixed;
+  bottom: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 400px;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse, rgba(30,80,220,0.3) 0%, rgba(20,50,180,0.12) 50%, transparent 75%);
+  filter: blur(50px);
+}
+
+/* ─── Page Container ─── */
+.page-container {
+  position: relative;
+  z-index: 10;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+
+/* ─── Navbar ─── */
+.nav-pill {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  margin-bottom: 40px;
+  animation: fadeUp 0.5s ease-out 0.1s both;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  box-shadow: 0 0 16px rgba(96,165,250,0.5);
+}
+
+.nav-brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.try-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-radius: 999px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(37,99,235,0.4);
+  border: none;
+  font-family: inherit;
+}
+.try-btn:hover { transform: scale(1.04); }
+
+.ghost-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  padding: 7px 18px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.ghost-btn:hover { background: rgba(255,255,255,0.09); }
+
+/* ─── Hero Card ─── */
+.hero-card {
+  background: linear-gradient(160deg, #0d1535 0%, #0a0f28 40%, #06081a 100%);
+  border: 1px solid rgba(100,140,255,0.12);
+  border-radius: 28px;
+  overflow: hidden;
+  padding: 56px 32px 0;
+  animation: fadeUp 0.5s ease-out 0.25s both;
+}
+
+.hero-title-area {
+  text-align: center;
+}
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: rgba(220,230,255,0.92);
+}
+
+.hero-accent {
+  color: #93c5fd;
+}
+
+/* ─── Orb Area ─── */
+.orb-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.orb-top-glow {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  height: 150px;
+  pointer-events: none;
+  background: radial-gradient(ellipse, rgba(60,120,255,0.22) 0%, transparent 70%);
+  filter: blur(20px);
+}
+
+.orb-wrapper {
+  position: relative;
+  width: 280px;
+  height: 280px;
+}
+
+.orb-wrapper canvas {
+  width: 280px;
+  height: 280px;
+  position: relative;
+  z-index: 10;
+}
+
+/* ─── Orb Centre Mic Button ─── */
+.orb-mic-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: none;
+}
+
+.orb-mic-btn.listening {
+  background: rgba(0,200,255,0.18);
+  border-color: rgba(0,200,255,0.5);
+  box-shadow: 0 0 28px rgba(0,200,255,0.75);
+}
+.orb-mic-btn.thinking {
+  background: rgba(140,80,255,0.18);
+  border-color: rgba(140,80,255,0.5);
+  box-shadow: 0 0 28px rgba(140,80,255,0.7);
+}
+.orb-mic-btn.speaking {
+  background: rgba(0,240,120,0.15);
+  border-color: rgba(0,240,120,0.4);
+  box-shadow: 0 0 28px rgba(0,240,120,0.55);
+}
+
+.orb-mic-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.orb-stop-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: white;
+  opacity: 0.9;
+}
+
+/* ─── Floor Glow ─── */
+.orb-floor-glow {
+  position: absolute;
+  bottom: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 220px;
+  filter: blur(34px);
+  pointer-events: none;
+  transition: background 0.5s;
+  background: radial-gradient(ellipse, rgba(37,99,235,0.5) 0%, rgba(20,60,200,0.18) 45%, transparent 72%);
+}
+.orb-floor-glow.listening {
+  background: radial-gradient(ellipse, rgba(0,200,255,0.55) 0%, transparent 70%);
+}
+.orb-floor-glow.thinking {
+  background: radial-gradient(ellipse, rgba(140,80,255,0.48) 0%, transparent 70%);
+}
+.orb-floor-glow.speaking {
+  background: radial-gradient(ellipse, rgba(0,220,120,0.45) 0%, transparent 70%);
+}
+
+/* ─── CTA / Speak Button ─── */
+.cta-area {
+  position: relative;
+  z-index: 10;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.speak-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  color: white;
+  border: none;
+  transition: all 0.3s;
+  font-family: inherit;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 0 30px rgba(37,99,235,0.5), 0 4px 20px rgba(0,0,0,0.4);
+}
+.speak-btn:hover { transform: scale(1.04); }
+
+.speak-btn.listening {
+  background: linear-gradient(135deg, #0891b2, #0e7490);
+  box-shadow: 0 0 40px rgba(0,200,255,0.6);
+}
+.speak-btn.thinking {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  box-shadow: 0 0 40px rgba(140,80,255,0.6);
+}
+.speak-btn.speaking {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 0 40px rgba(0,220,120,0.5);
+}
+
+/* ─── Pulse Dot ─── */
+@keyframes pdot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.5); }
+}
+
+.pdot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: pdot 1.4s ease-in-out infinite;
+  display: inline-block;
+}
+.pdot.idle      { background: #93c5fd; }
+.pdot.listening { background: #67e8f9; }
+.pdot.thinking  { background: #c4b5fd; animation-duration: 0.9s; }
+.pdot.speaking  { background: #6ee7b7; animation-duration: 0.6s; }
+
+/* ─── Feedback Area (transcript / reply) ─── */
+.feedback-area {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 40px;
+  width: 100%;
+  padding: 0 16px;
+}
+
+.transcript-box {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.transcript-label {
+  opacity: 0.45;
+  font-size: 11px;
+  display: block;
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.transcript-you {
+  color: rgba(103,232,249,0.9);
+}
+
+.transcript-ai {
+  color: rgba(220,230,255,0.88);
+}
+
+/* ─── Error Box ─── */
+.error-box {
+  background: rgba(220,38,38,0.12);
+  border: 1px solid rgba(220,38,38,0.25);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 12.5px;
+  color: #fca5a5;
+  text-align: center;
+  max-width: 380px;
+  margin: 0 auto 32px;
+  position: relative;
+  z-index: 10;
+}
+
+/* ─── Feature Cards ─── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 40px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeUp 0.5s ease-out 0.45s both;
+}
+
+.feature-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 28px;
+  transition: all 0.3s ease;
+}
+.feature-card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(100,150,255,0.2);
+  transform: translateY(-2px);
+}
+
+.feature-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 8px;
+  color: rgba(220,230,255,0.9);
+}
+
+.feature-desc {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.45);
+}
+
+/* ─── Text Input Fallback ─── */
+.text-input-area {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  max-width: 480px;
+  margin: 0 auto 40px;
+  padding: 0 16px;
+  width: 100%;
+}
+
+.text-input-area input {
+  flex: 1;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  outline: none;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-family: inherit;
+  font-size: 13.5px;
+  transition: border-color 0.3s;
+}
+.text-input-area input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+.text-input-area input:focus {
+  border-color: rgba(37,99,235,0.6);
+}
+
+.send-btn {
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 16px rgba(37,99,235,0.3);
+}
+.send-btn:hover { transform: scale(1.04); }
+
+/* ─── Animations ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .page-container { padding: 16px 12px; }
+  .hero-card { padding: 36px 16px 0; border-radius: 20px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .nav-brand { display: none; }
+  .orb-wrapper { width: 220px; height: 220px; }
+  .orb-wrapper canvas { width: 220px; height: 220px; }
+  .orb-floor-glow { width: 320px; height: 160px; }
+}

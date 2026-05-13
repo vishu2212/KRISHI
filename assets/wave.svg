@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" fill="none">
+  <style>
+    .bar { fill: url(#grad); animation: pulse 1.2s ease-in-out infinite; }
+    .bar:nth-child(1) { animation-delay: 0s; }
+    .bar:nth-child(2) { animation-delay: 0.1s; }
+    .bar:nth-child(3) { animation-delay: 0.2s; }
+    .bar:nth-child(4) { animation-delay: 0.3s; }
+    .bar:nth-child(5) { animation-delay: 0.4s; }
+    .bar:nth-child(6) { animation-delay: 0.3s; }
+    .bar:nth-child(7) { animation-delay: 0.2s; }
+    .bar:nth-child(8) { animation-delay: 0.1s; }
+    .bar:nth-child(9) { animation-delay: 0s; }
+    @keyframes pulse {
+      0%, 100% { transform: scaleY(0.3); }
+      50% { transform: scaleY(1); }
+    }
+  </style>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect class="bar" x="10"  y="10" width="12" height="60" rx="6" transform-origin="16 40"/>
+  <rect class="bar" x="30"  y="10" width="12" height="60" rx="6" transform-origin="36 40"/>
+  <rect class="bar" x="50"  y="10" width="12" height="60" rx="6" transform-origin="56 40"/>
+  <rect class="bar" x="70"  y="10" width="12" height="60" rx="6" transform-origin="76 40"/>
+  <rect class="bar" x="90"  y="10" width="12" height="60" rx="6" transform-origin="96 40"/>
+  <rect class="bar" x="110" y="10" width="12" height="60" rx="6" transform-origin="116 40"/>
+  <rect class="bar" x="130" y="10" width="12" height="60" rx="6" transform-origin="136 40"/>
+  <rect class="bar" x="150" y="10" width="12" height="60" rx="6" transform-origin="156 40"/>
+  <rect class="bar" x="170" y="10" width="12" height="60" rx="6" transform-origin="176 40"/>
+</svg>

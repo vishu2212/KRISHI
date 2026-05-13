@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="KIYARI AI — intelligent voice assistant for the Kiyari soil & crop learning board game." />
+  <title>KIYARI AI — Voice Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Bottom ambient glow -->
+  <div class="bottom-glow"></div>
+
+  <div class="page-container">
+
+    <!-- ─── Navbar ─── -->
+    <nav class="nav-pill" id="navbar">
+      <div class="nav-left">
+        <div class="logo-mark"></div>
+        <span class="nav-brand">KIYARI AI</span>
+      </div>
+      <div class="nav-right">
+        <button class="try-btn" id="navTryBtn">Try it now</button>
+        <button class="ghost-btn" onclick="window.open('../index.html','_self')">Back to Game</button>
+      </div>
+    </nav>
+
+    <!-- ─── Hero Card ─── -->
+    <div class="hero-card" id="heroCard">
+
+      <!-- Title -->
+      <div class="hero-title-area">
+        <h1 class="hero-title">
+          Talk to <span class="hero-accent">KIYARI AI</span>
+        </h1>
+      </div>
+
+      <!-- Orb Area -->
+      <div class="orb-area">
+
+        <!-- Top ambient light -->
+        <div class="orb-top-glow"></div>
+
+        <!-- Particle Sphere Canvas -->
+        <div class="orb-wrapper">
+          <canvas id="particleSphere" width="560" height="560"></canvas>
+
+          <!-- Mic / Stop button in centre of orb -->
+          <button class="orb-mic-btn" id="orbMicBtn" title="Click to speak">
+            <svg class="orb-mic-icon" id="orbMicIcon" viewBox="0 0 24 24" fill="white" width="18" height="18">
+              <path d="M12 1a4 4 0 0 0-4 4v7a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/>
+              <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.93V21H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-3.07A7 7 0 0 0 19 11z"/>
+            </svg>
+            <div class="orb-stop-icon" id="orbStopIcon" style="display:none;"></div>
+          </button>
+        </div>
+
+        <!-- Floor glow under the sphere -->
+        <div class="orb-floor-glow" id="orbFloorGlow"></div>
+
+        <!-- CTA / status button -->
+        <div class="cta-area">
+          <button class="speak-btn" id="speakBtn">
+            <span class="pdot" id="pdot"></span>
+            <span id="speakBtnLabel">Speak with KIYARI AI</span>
+          </button>
+        </div>
+
+        <!-- Live transcript / AI reply box -->
+        <div class="feedback-area" id="feedbackArea" style="display:none;">
+          <div class="transcript-box" id="transcriptBox"></div>
+        </div>
+
+        <!-- Error box -->
+        <div class="error-box" id="errorBox" style="display:none;"></div>
+
+        <!-- Text input fallback -->
+        <div class="text-input-area">
+          <input type="text" id="textInput" placeholder="Or type your question here…" />
+          <button class="send-btn" id="btnSend">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Feature Cards ─── -->
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3 class="feature-title">Voice Guidance</h3>
+        <p class="feature-desc">Get real-time explanations about gameplay, cards, soils, and climate interactions.</p>
+      </div>
+      <div class="feature-card">
+        <h3 class="feature-title">Educational AI</h3>
+        <p class="feature-desc">Understand ecosystem logic and farming strategy through interactive conversation.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

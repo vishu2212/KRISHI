@@ -202,9 +202,12 @@ Cards: ${(gameState.playerCards || []).join(", ")}` : "Game has not started yet.
     }
   }
 });
+// Export the app for serverless architectures (like Vercel)
+export default app;
 
-
-
-app.listen(PORT, () => {
-  console.log(`✅ KIYARI AI server running → http://localhost:${PORT}`);
-});
+// Only start the local server if we're running directly (and not inside a serverless lambda)
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`✅ KIYARI AI server running → http://localhost:${PORT}`);
+  });
+}

@@ -284,7 +284,7 @@ async function askAI(userText) {
   setVoiceState("thinking");
 
   try {
-    const res = await fetch("/ai", {
+    const res = await fetch("/api/ai", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: userText, history, gameState }),

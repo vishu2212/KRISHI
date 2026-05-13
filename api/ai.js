@@ -7,8 +7,6 @@ import { dirname, join } from "path";
 
 dotenv.config();
 
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
 
@@ -18,12 +16,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static frontend files
-app.use(express.static(__dirname));
+// Serve static frontend files from parent directory (for local testing)
+app.use(express.static(join(__dirname, "..")));
 
 // ─── AI endpoint — proxies to Groq API (streaming) ──────
-app.post("/ai", async (req, res) => {
-  console.log("=> Received /ai request");
+// Accepts both /ai and /api/ai to support seamless local and serverless execution
+app.post(["/ai", "/api/ai"], async (req, res) => {
+  console.log("=> Received AI proxy request");
   const { message, history = [], gameState = {} } = req.body;
 
   const apiKey = process.env.GROQ_API_KEY;
@@ -202,12 +201,13 @@ Cards: ${(gameState.playerCards || []).join(", ")}` : "Game has not started yet.
     }
   }
 });
+
 // Export the app for serverless architectures (like Vercel)
 export default app;
 
 // Only start the local server if we're running directly (and not inside a serverless lambda)
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
-    console.log(`✅ KIYARI AI server running → http://localhost:${PORT}`);
+    console.log(`✅ KIYARI AI server running locally → http://localhost:${PORT}`);
   });
 }

@@ -239,7 +239,7 @@ function speakText(text) {
 
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang   = "en-IN";
-  utter.rate   = 1.0;
+  utter.rate   = 1.2;
   utter.pitch  = 1.0;
   utter.volume = 1.0;
 

@@ -628,70 +628,156 @@ if (btnSend && textInput) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  FULLSCREEN WAVE VISUAL REACTIVITY SYSTEM
+//  IMMERSIVE FULL-WIDTH HORIZONTAL PROCEDURAL WAVEFORM ENGINE
 // ═══════════════════════════════════════════════════════════
-function updateVoiceWaveAnimation() {
-  if (!voiceWaveGif) {
-    requestAnimationFrame(updateVoiceWaveAnimation);
-    return;
+(function initHorizontalWaveform() {
+  const canvas = document.getElementById("horizontalWaveform");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+
+  const dpr = window.devicePixelRatio || 1;
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
   }
+  resize();
 
-  let currentVolume = 0; // 0.0 to 1.0 normalized range for reactive scale
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 150);
+  });
 
-  if (voiceState === "listening") {
-    // Read live normalized volume from the active mic capture
-    currentVolume = micVolume;
-  } else if (voiceState === "speaking") {
-    // Synthesize premium procedural speaker physics for TTS audio
-    // Uses sine wave interference logic (mimicking real spoken cadence)
-    const t = Date.now() / 100;
-    let proceduralOsc = Math.sin(t * 0.75) * 0.4 + Math.sin(t * 1.4) * 0.35 + Math.sin(t * 2.2) * 0.25;
-    // Map to a nice positive amplitude bound
-    currentVolume = 0.25 + Math.abs(proceduralOsc) * 0.5;
-  } else if (voiceState === "thinking") {
-    // Medium frequency ripple for processing cycles
-    currentVolume = 0.08 + Math.sin(Date.now() / 200) * 0.03;
-  } else {
-    // Slow, ambient breathing cycle while idle
-    currentVolume = Math.sin(Date.now() / 2000) * 0.015;
-  }
+  // State configuration mapping
+  const states = {
+    idle: {
+      amp: 15, freq: 0.002, spd: 0.012, op: 0.28,
+      c1: [37, 99, 235],  // Deep Blue
+      c2: [139, 92, 246] // Soft Violet
+    },
+    listening: {
+      amp: 35, freq: 0.006, spd: 0.045, op: 0.65,
+      c1: [6, 182, 212], // Electric Cyan
+      c2: [37, 99, 235]  // Electric Blue
+    },
+    thinking: {
+      amp: 22, freq: 0.0035, spd: 0.02, op: 0.45,
+      c1: [168, 85, 247], // Purple
+      c2: [236, 72, 153]  // Magenta
+    },
+    speaking: {
+      amp: 45, freq: 0.005, spd: 0.035, op: 0.75,
+      c1: [6, 182, 212],  // Cyan highlights
+      c2: [139, 92, 246] // Blue+Purple gradient
+    }
+  };
 
-  // Prevent excessive negative scaling or boundaries
-  currentVolume = Math.max(0, Math.min(1.0, currentVolume));
+  // Kinetic variables for physics interpolation
+  let cur = {
+    amp: 15, freq: 0.002, spd: 0.012, op: 0.25,
+    c1: [37, 99, 235], c2: [139, 92, 246]
+  };
 
-  // Apply fluid transform logic (scale & subtle rotation oscillation)
-  let scaleBase = 1.0;
-  let brightnessMult = 1.0;
-  
-  if (voiceState === "speaking" || voiceState === "listening") {
-    // Fluid bounce & pop reactive mapping
-    scaleBase = 1.02 + (currentVolume * 0.08);
-    brightnessMult = 0.9 + (currentVolume * 0.7); // Go brighter based on volume
+  let time = 0;
+  let smoothAudioBoost = 0;
+
+  function draw(t) {
+    ctx.clearRect(0, 0, width, height);
+
+    // 1. Interpolate configurations smoothly based on the active AI state
+    const target = states[voiceState] || states.idle;
+    const ease = 0.08; // butter-smooth transitions
     
-    const angleOsc = Math.sin(Date.now() / 1000) * 0.4; // slow rotation wobble
-    voiceWaveGif.style.transform = `scale(${scaleBase}) rotate(${angleOsc}deg)`;
+    cur.amp  += (target.amp - cur.amp) * ease;
+    cur.freq += (target.freq - cur.freq) * ease;
+    cur.spd  += (target.spd - cur.spd) * ease;
+    cur.op   += (target.op - cur.op) * ease;
     
-    // Smooth dynamic color/shadow modulation for premium presence
-    const glowRadius = 15 + (currentVolume * 35);
-    const themeColor = voiceState === "listening" ? "0, 200, 255" : "0, 240, 120";
-    voiceWaveGif.style.filter = `brightness(${brightnessMult}) contrast(1.3) drop-shadow(0 0 ${glowRadius}px rgba(${themeColor}, 0.5)) saturate(1.15)`;
-    voiceWaveGif.style.transition = "none"; // raw frame speed for instant response
-  } else if (voiceState === "thinking") {
-    scaleBase = 1.01 + (currentVolume * 0.03);
-    voiceWaveGif.style.transform = `scale(${scaleBase})`;
-    voiceWaveGif.style.filter = "brightness(0.65) contrast(1.15) blur(1px) saturate(0.9)";
-    voiceWaveGif.style.transition = "transform 0.5s ease, filter 0.5s ease";
-  } else {
-    // Idle baseline state
-    scaleBase = 0.99 + currentVolume; // very minimal drift
-    voiceWaveGif.style.transform = `scale(${scaleBase})`;
-    voiceWaveGif.style.filter = "brightness(0.4) contrast(1.05) saturate(0.85)";
-    voiceWaveGif.style.transition = "transform 1.5s ease, filter 1.5s ease";
+    // Interpolate colors in RGB space
+    for (let i = 0; i < 3; i++) {
+      cur.c1[i] += (target.c1[i] - cur.c1[i]) * ease;
+      cur.c2[i] += (target.c2[i] - cur.c2[i]) * ease;
+    }
+
+    // 2. Unified Audio Reactivity Logic
+    let audioBoost = 0;
+    if (voiceState === "listening") {
+      audioBoost = micVolume * 2.5; // direct microphone scaling
+    } else if (voiceState === "speaking") {
+      // Synthetic spoken-cadence physics for TTS response
+      const speakT = Date.now() / 90;
+      audioBoost = (0.3 + Math.abs(Math.sin(speakT * 0.8) * 0.45 + Math.sin(speakT * 1.6) * 0.25)) * 1.2;
+    }
+    smoothAudioBoost += (audioBoost - smoothAudioBoost) * 0.18;
+
+    // 3. Setup screen compositing and bloom glow
+    ctx.globalCompositeOperation = "screen";
+    const colorL = `rgb(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])})`;
+    const colorR = `rgb(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])})`;
+    
+    ctx.shadowColor = colorL;
+    ctx.shadowBlur = 25 * (cur.op + smoothAudioBoost * 0.3);
+
+    // Render 4 overlapping, offset sinusoidal ribbon ribbons
+    const layers = 4;
+    const cy = height / 2;
+
+    for (let j = 0; j < layers; j++) {
+      ctx.beginPath();
+      
+      const opacityScale = (1 - (j * 0.15)) * cur.op;
+      const layerGrad = ctx.createLinearGradient(0, 0, width, 0);
+      layerGrad.addColorStop(0, `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, 0)`);
+      layerGrad.addColorStop(0.3, `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, ${opacityScale})`);
+      layerGrad.addColorStop(0.7, `rgba(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])}, ${opacityScale})`);
+      layerGrad.addColorStop(1, `rgba(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])}, 0)`);
+
+      ctx.strokeStyle = layerGrad;
+      ctx.lineWidth = 1.5 + (j * 0.5) + (smoothAudioBoost * 1.5);
+
+      // Offsets that decouple standard movement speeds to make motion cinematic
+      const phaseOffset = j * (Math.PI * 0.5);
+      const layerSpeedMultiplier = 1 + j * 0.15;
+      const layerFreqMultiplier = 1 - j * 0.12;
+
+      // Trace dynamic sine wave across width
+      const step = 6; // step size in pixels for precision + perf
+      for (let x = 0; x <= width; x += step) {
+        // Sine Envelope: tapers deflection to 0 at exact edges so container boundary is invisible
+        const envelope = Math.pow(Math.sin((x / width) * Math.PI), 1.8);
+        
+        // Standard Sinusoidal wave formula
+        let waveDeflect = Math.sin((x * cur.freq * layerFreqMultiplier) + t * (cur.spd * layerSpeedMultiplier) + phaseOffset);
+        
+        // Introduce second harmonic to break geometric monotony
+        waveDeflect += Math.sin((x * cur.freq * 1.8) - t * (cur.spd * 0.9) + phaseOffset * 2) * 0.35;
+
+        // Incorporate total amplitude (base state + live audio boosts)
+        const finalAmp = (cur.amp + (smoothAudioBoost * 45)) * (1 - j * 0.15);
+        
+        const y = cy + (waveDeflect * finalAmp * envelope);
+
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
   }
 
-  requestAnimationFrame(updateVoiceWaveAnimation);
-}
-
-// Initialize the rendering loop immediately
-requestAnimationFrame(updateVoiceWaveAnimation);
+  function animate() {
+    time += 1.0;
+    draw(time);
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
 

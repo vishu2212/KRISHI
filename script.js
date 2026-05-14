@@ -91,12 +91,11 @@ const gameState = {
 // ═══════════════════════════════════════════════════════════
 //  PARTICLE SPHERE — 3D orb rendered to <canvas>
 // ═══════════════════════════════════════════════════════════
-(function initParticleSphere() {
+(function initAudioWaveform() {
   const canvas = document.getElementById("particleSphere");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
 
-  // Dynamically get size from CSS-styled wrapper
   const wrapper = canvas.parentElement;
   function getOrbSize() {
     return wrapper ? wrapper.clientWidth : 280;
@@ -111,132 +110,143 @@ const gameState = {
     canvas.height = SIZE * dpr;
     canvas.style.width  = SIZE + "px";
     canvas.style.height = SIZE + "px";
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
   }
   resizeCanvas();
 
-  // Re-init on resize (debounced)
   let resizeTimer;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(resizeCanvas, 150);
   });
 
-  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  // State visual parameters (speeds, scales, aesthetics)
+  const layers = [
+    { color: "rgba(37, 99, 235, 0.65)", shadow: "rgba(37, 99, 235, 0.4)", rot: 0, spd: 0.015, freq: 4, phase: 0.3 },
+    { color: "rgba(6, 182, 212, 0.75)", shadow: "rgba(6, 182, 212, 0.5)", rot: 0, spd: -0.02,  freq: 6, phase: 0.7 },
+    { color: "rgba(139, 92, 246, 0.6)", shadow: "rgba(139, 92, 246, 0.35)", rot: 0, spd: 0.01,  freq: 5, phase: 1.1 }
+  ];
 
-  // Generate 320 Fibonacci sphere points
-  const points = Array.from({ length: 320 }, (_, i) => {
-    const y = 1 - (i / 319) * 2;
-    const r = Math.sqrt(1 - y * y);
-    const t = goldenAngle * i;
-    return { x: Math.cos(t) * r, y, z: Math.sin(t) * r, s: Math.random() * 1.2 + 0.5 };
-  });
-
-  // Generate wireframe mesh lines (latitude + longitude)
-  const meshLines = [];
-  for (let la = 0; la < 8; la++) {
-    const phi = (Math.PI / 8) * la;
-    meshLines.push(Array.from({ length: 61 }, (_, i) => {
-      const t = (2 * Math.PI * i) / 60;
-      return { x: Math.sin(phi)*Math.cos(t), y: Math.cos(phi), z: Math.sin(phi)*Math.sin(t) };
-    }));
-  }
-  for (let lo = 0; lo < 10; lo++) {
-    const t = (2 * Math.PI * lo) / 10;
-    meshLines.push(Array.from({ length: 41 }, (_, i) => {
-      const phi = (Math.PI * i) / 40;
-      return { x: Math.sin(phi)*Math.cos(t), y: Math.cos(phi), z: Math.sin(phi)*Math.sin(t) };
-    }));
-  }
-
-  // 3D → 2D projection with rotation (uses live SIZE)
-  function project(px, py, pz, rot) {
-    const cx = SIZE / 2, cy = SIZE / 2, R = SIZE * 0.38;
-    const cosR = Math.cos(rot), sinR = Math.sin(rot);
-    const rx = px*cosR + pz*sinR, ry = py, rz = -px*sinR + pz*cosR;
-    const cosT = Math.cos(0.2), sinT = Math.sin(0.2);
-    return { x: rx*R + cx, y: (ry*cosT - rz*sinT)*R + cy, z: ry*sinT + rz*cosT };
-  }
-
-  // Per-state visual params
-  function stateParams(st, t) {
-    const map = {
-      idle:      { spd: 0.003, mA: 0.09,  cR:100, cG:180, cB:255, glow:0.06 },
-      listening: { spd: 0.009, mA: 0.14,  cR:80,  cG:200, cB:255, glow:0.14 + Math.sin(t*4)*0.08 },
-      thinking:  { spd: 0.005, mA: 0.08,  cR:140, cG:100, cB:255, glow:0.10 + Math.sin(t*2)*0.05 },
-      speaking:  { spd: 0.012, mA: 0.18,  cR:120, cG:220, cB:255, glow:0.18 + Math.sin(t*6)*0.10 },
-    };
-    return map[st] || map.idle;
-  }
-
-  let rot = 0, time = 0;
+  let time = 0;
+  let smoothVol = 0;
+  const orbMicBtn = document.getElementById("orbMicBtn");
 
   function draw(t) {
-    const R = SIZE * 0.38;
     const cx = SIZE / 2, cy = SIZE / 2;
+    const baseR = SIZE * 0.28;
+    
     ctx.clearRect(0, 0, SIZE, SIZE);
-    const st = voiceState;
-    const p  = stateParams(st, t);
+    
+    // Calculate unified volume from state + analyser
+    let targetVol = 0;
+    if (voiceState === "listening") {
+      targetVol = micVolume; // real live mic volume
+    } else if (voiceState === "speaking") {
+      // Procedural voice metrics for speaking mode
+      const ts = Date.now() / 100;
+      targetVol = 0.25 + Math.abs(Math.sin(ts * 0.8) * 0.4 + Math.sin(ts * 1.5) * 0.25) * 0.5;
+    } else if (voiceState === "thinking") {
+      targetVol = 0.1 + Math.sin(Date.now() / 200) * 0.03;
+    } else {
+      // Serene breathing ambient rhythm for idle
+      targetVol = 0.02 + Math.sin(Date.now() / 1500) * 0.01;
+    }
+    
+    // Fast attack, slow release interpolation for buttery-smooth kinetics
+    smoothVol += (targetVol - smoothVol) * 0.18;
 
-    // Draw wireframe mesh
-    meshLines.forEach(line => {
+    // Force dynamic safe scale & holographic glow on the central mic button based on audio intensity
+    if (orbMicBtn) {
+      const micPulse = 1 + smoothVol * 0.18;
+      orbMicBtn.style.transform = `translate(-50%, -50%) scale(${micPulse})`;
+      
+      if (voiceState === "listening") {
+        const shadowBlur = 20 + smoothVol * 35;
+        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 200, 255, ${0.4 + smoothVol * 0.5})`;
+      } else if (voiceState === "speaking") {
+        const shadowBlur = 20 + smoothVol * 35;
+        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 240, 120, ${0.4 + smoothVol * 0.5})`;
+      } else {
+        orbMicBtn.style.boxShadow = ""; // default
+      }
+    }
+
+    // Set composition to Screen for premium holographic blending
+    ctx.globalCompositeOperation = "lighter";
+
+    // Extract live frequency bin data for wave morphing if available
+    let spectrum = [];
+    if (voiceState === "listening" && analyser && dataArray) {
+      analyser.getByteFrequencyData(dataArray);
+      // Map frequency array bins down to a dense sample array for performance
+      for (let i = 0; i < 60; i++) {
+        spectrum.push((dataArray[i] || 0) / 255.0);
+      }
+    }
+
+    // Draw the procedural morphing ribbon layers
+    layers.forEach((layer, layerIdx) => {
+      layer.rot += layer.spd * (1 + smoothVol * 1.5);
+      
       ctx.beginPath();
-      line.forEach((pt, i) => {
-        const q = project(pt.x, pt.y, pt.z, rot);
-        i === 0 ? ctx.moveTo(q.x, q.y) : ctx.lineTo(q.x, q.y);
-      });
-      ctx.strokeStyle = `rgba(${p.cR},${p.cG},${p.cB},${p.mA})`;
-      ctx.lineWidth = 0.4;
+      ctx.lineWidth = 1.6 + (smoothVol * 1.2);
+      ctx.strokeStyle = layer.color;
+      
+      // Add deep luminous neon glows
+      ctx.shadowColor = layer.shadow;
+      ctx.shadowBlur = 12 + (smoothVol * 25);
+
+      const totalPoints = 120;
+      for (let i = 0; i <= totalPoints; i++) {
+        const theta = (i / totalPoints) * Math.PI * 2;
+        const currentAngle = theta + layer.rot;
+
+        // Calculate organic wave height using layers of sine interference
+        let waveFactor = Math.sin(theta * layer.freq + t * 2.5 + layer.phase) * 0.35;
+        waveFactor += Math.cos(theta * (layer.freq + 2) - t * 1.8) * 0.2;
+        
+        // Inject real frequency data if actively listening
+        let localAudio = 0;
+        if (voiceState === "listening" && spectrum.length > 0) {
+          const specIdx = Math.floor((theta / (Math.PI * 2)) * spectrum.length) % spectrum.length;
+          localAudio = spectrum[specIdx] * 0.85;
+        }
+        
+        // Sum up dynamic radius (base + ambient oscillations + raw audio amplitude)
+        const waveHeight = 14 + (baseR * 0.3) * smoothVol;
+        const dynamicR = baseR + (waveFactor * waveHeight) + (localAudio * baseR * 0.4);
+
+        const x = cx + Math.cos(currentAngle) * dynamicR;
+        const y = cy + Math.sin(currentAngle) * dynamicR;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.closePath();
       ctx.stroke();
     });
 
-    // Draw depth-sorted particles
-    const projected = points.map(pt => ({ ...project(pt.x, pt.y, pt.z, rot), s: pt.s }));
-    projected.sort((a, b) => a.z - b.z);
-
-    // Calculate reactive amplitude for listening animation
-    const audioBoost = (st === "listening") ? micVolume * 2.2 : 0;
-
-    projected.forEach(q => {
-      const depth = (q.z + 1) / 2;
-      const alpha = 0.12 + depth * 0.78;
-      const ds    = q.s * (0.35 + depth * 0.95);
-      
-      // Wave motion formula combining sine ripples with voice amplitude
-      const boost = st === "speaking" 
-        ? 1 + Math.sin(t*8 + q.x*10) * 0.3 
-        : 1 + audioBoost * (1 + Math.sin(t*6 + q.x*8) * 0.3);
-
-      ctx.beginPath();
-      if (depth > 0.72) {
-        const g = ctx.createRadialGradient(q.x, q.y, 0, q.x, q.y, ds*2.8);
-        g.addColorStop(0, `rgba(${p.cR+60},${p.cG+20},255,${alpha})`);
-        g.addColorStop(1, `rgba(${p.cR},${p.cG},255,0)`);
-        ctx.fillStyle = g;
-        ctx.arc(q.x, q.y, ds * 2.8 * boost, 0, Math.PI * 2);
-      } else {
-        const b = Math.floor(140 + depth * 115);
-        ctx.fillStyle = `rgba(${b},${b+20},255,${alpha})`;
-        ctx.arc(q.x, q.y, ds * boost, 0, Math.PI * 2);
-      }
-      ctx.fill();
-    });
-
-    // Centre glow
-    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.65);
-    cg.addColorStop(0, `rgba(${p.cR},${p.cG},255,${p.glow})`);
+    // Draw the core radiant nexus glow
+    ctx.shadowBlur = 0; // reset shadow for core
+    const gradR = baseR * 0.8;
+    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, gradR);
+    const baseColor = voiceState === "speaking" ? "rgba(0, 240, 120," : "rgba(0, 200, 255,";
+    cg.addColorStop(0, baseColor + (0.15 + smoothVol * 0.25) + ")");
+    cg.addColorStop(0.5, baseColor + (0.05 + smoothVol * 0.1) + ")");
     cg.addColorStop(1, "rgba(0,0,0,0)");
+    
     ctx.beginPath();
-    ctx.arc(cx, cy, R * 0.65, 0, Math.PI * 2);
+    ctx.arc(cx, cy, gradR, 0, Math.PI * 2);
     ctx.fillStyle = cg;
     ctx.fill();
   }
 
   function animate() {
-    const p = stateParams(voiceState, time);
-    rot  += p.spd;
-    time += 0.016;
+    time += 0.015;
     draw(time);
     requestAnimationFrame(animate);
   }

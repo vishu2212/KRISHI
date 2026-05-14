@@ -135,8 +135,10 @@ function setVoiceState(newState) {
     orbStopIcon.style.display = "none";
   }
 
-  // Floor glow
-  orbFloorGlow.className = "orb-floor-glow " + newState;
+  // Floor glow (if present)
+  if (orbFloorGlow) {
+    orbFloorGlow.className = "orb-floor-glow " + newState;
+  }
 }
 
 

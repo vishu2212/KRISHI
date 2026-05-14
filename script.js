@@ -74,7 +74,7 @@ async function startMicCapture() {
 }
 
 const STATUS_MAP = {
-  idle:      "Speak with KIYARI AI",
+  idle:      "Say 'Hey Krishi' to wake up",
   listening: "Listening…",
   thinking:  "Thinking…",
   speaking:  "Speaking…",
@@ -362,13 +362,21 @@ function startWakeWordDetection() {
 //  VOICE ASSISTANT ENGINE LAUNCHER
 // ═══════════════════════════════════════════════════════════
 // Added specialized voiceAssistant wrapper mapping wake word detection to click interaction compliance.
+let hasAssistantStarted = false;
 function voiceAssistant() {
+  if (hasAssistantStarted) return;
+  hasAssistantStarted = true;
   initAudioContext();
   if (voiceState === "idle") {
     startWakeWordDetection();
   }
 }
+
+// Ensure early boot capability on load, with robust click interaction fallback
+window.addEventListener("load", voiceAssistant);
 document.addEventListener("click", voiceAssistant, { once: true });
+// Immediate invoke attempt
+voiceAssistant();
 
 
 // ═══════════════════════════════════════════════════════════

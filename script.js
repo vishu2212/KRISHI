@@ -14,7 +14,6 @@ const pdot          = document.getElementById("pdot");
 const feedbackArea  = document.getElementById("feedbackArea");
 const transcriptBox = document.getElementById("transcriptBox");
 const errorBox      = document.getElementById("errorBox");
-const navTryBtn     = document.getElementById("navTryBtn");
 const voiceWaveContainer = document.getElementById("voiceWaveContainer");
 const voiceWaveGif = document.getElementById("voiceWaveGif");
 
@@ -470,7 +469,6 @@ if (orbMicBtn) {
   orbMicBtn.addEventListener("click", () => { console.log("orbMicBtn clicked, state:", voiceState); handleMicClick(); });
 }
 speakBtn.addEventListener("click", () => { console.log("speakBtn clicked, state:", voiceState); handleMicClick(); });
-navTryBtn.addEventListener("click", () => { console.log("navTryBtn clicked, state:", voiceState); handleMicClick(); });
 
 // ─── Text Input Fallback ─────────────────────────────────
 const textInput = document.getElementById("textInput");

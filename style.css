@@ -117,82 +117,40 @@ body {
   padding: 0;
 }
 
-/* ─── Navbar ─── */
-.nav-pill {
-  background: var(--glass-light);
-  border: 1px solid rgba(109,76,65,0.15);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 999px;
+/* ─── Ambient Floating Identity ─── */
+.ambient-identity {
+  position: absolute;
+  top: 32px;
+  left: 36px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  width: 92%;
-  max-width: 900px;
-  margin: 24px auto;
-  box-shadow: 0 4px 20px rgba(109,76,65,0.05);
+  gap: 12px;
+  z-index: 100;
   animation: fadeUp 0.5s ease-out 0.1s both;
 }
 
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .logo-mark {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
-  box-shadow: 0 0 16px rgba(76,175,80,0.3);
+  box-shadow: 0 0 14px rgba(76,175,80,0.25);
+  will-change: transform, opacity;
+  animation: pulseSlow 5s ease-in-out infinite;
 }
 
-.nav-brand {
+.identity-label {
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   font-size: 14px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--earth-dark);
+  opacity: 0.80;
 }
 
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.try-btn {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  border-radius: 999px;
-  padding: 7px 18px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  color: white;
-  transition: all 0.2s;
-  box-shadow: 0 0 20px rgba(37,99,235,0.4);
-  border: none;
-  font-family: inherit;
-}
-.try-btn:hover { transform: scale(1.04); }
-
-.ghost-btn {
-  background: rgba(109,76,65,0.04);
-  border: 1px solid rgba(109,76,65,0.15);
-  border-radius: 999px;
-  padding: 7px 18px;
-  font-size: 13px;
-  color: var(--earth-dark);
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-.ghost-btn:hover { 
-  background: rgba(109,76,65,0.08); 
-  border-color: var(--earth);
+@keyframes pulseSlow {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; box-shadow: 0 0 18px rgba(76,175,80,0.45); }
 }
 
 /* ─── Hero Card ─── */
@@ -541,21 +499,14 @@ body {
     filter: blur(35px);
   }
 
-  /* Navbar — compact */
-  .nav-pill {
-    padding: 8px 14px;
-    margin: 16px auto 24px;
-    gap: 6px;
+  /* Ambient Identity — compact */
+  .ambient-identity {
+    top: 20px;
+    left: 20px;
+    gap: 8px;
   }
-  .nav-brand { display: none; }
-  .logo-mark { width: 26px; height: 26px; }
-  .nav-right { gap: 6px; }
-  .try-btn,
-  .ghost-btn {
-    padding: 8px 14px;
-    font-size: 12px;
-    min-height: 38px;
-  }
+  .logo-mark { width: 20px; height: 20px; }
+  .identity-label { font-size: 12px; }
 
   /* Hero */
   .hero-card {
@@ -636,13 +587,6 @@ body {
 /* Small phones (iPhone SE, Galaxy S series) */
 @media (max-width: 380px) {
   .page-container { padding: 0; }
-
-  .nav-pill { padding: 6px 10px; margin: 12px auto 18px; }
-  .try-btn,
-  .ghost-btn {
-    padding: 7px 10px;
-    font-size: 11px;
-  }
 
   .hero-card {
     padding: 20px 8px;

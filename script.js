@@ -74,7 +74,7 @@ async function startMicCapture() {
 }
 
 const STATUS_MAP = {
-  idle:      "Say 'Hey Krishi' to wake up",
+  idle:      "Say 'Hey KIYARI' to wake up",
   listening: "Listening…",
   thinking:  "Thinking…",
   speaking:  "Speaking…",
@@ -316,10 +316,9 @@ function startWakeWordDetection() {
       const phrase = e.results[i][0].transcript.toLowerCase().trim();
       console.log("[Hands-Free Watchdog]: heard -> '" + phrase + "'");
 
-      // Dynamic phonetic triggers targeting 'Krishi' and 'Kiyari' variant interpretations
+      // Dynamic phonetic triggers targeting 'KIYARI' variant interpretations
       const triggerTerms = [
-        "krishi", "krushi", "rishi", "krishna", "krish", "kishi", "christie", "chrissy", "christi",
-        "kiyari", "kyari", "kiari", "kyare", "kiare", "khari", "cari", "tiari", "kiara", "kieri"
+        "kiyari", "kyari", "kiari", "kyare", "kiare", "khari", "cari", "tiari", "kiara", "kieri", "kiary"
       ];
 
       // High-sensitivity detection matrix
@@ -363,7 +362,7 @@ function startWakeWordDetection() {
 
   try {
     wr.start();
-    console.log("%c🎙️ [Hands-Free Active]: Listening silently for 'Hey Krishi' / 'Hey Kiyari'...", "color: #2563eb; font-weight: bold; font-size: 12px;");
+    console.log("%c🎙️ [Hands-Free Active]: Listening silently for 'Hey KIYARI'...", "color: #2563eb; font-weight: bold; font-size: 12px;");
   } catch (_) {}
 }
 

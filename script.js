@@ -543,30 +543,30 @@ if (btnSend && textInput) {
     resizeTimer = setTimeout(resize, 150);
   });
 
-  // V3 Atmospheric configurations (Super slow, ultra-thick, elegant elongated wavelengths)
+  // V3 Atmospheric configurations (Optimized for Light Nature Theme)
   const states = {
     idle: {
-      amp: 10, freq: 0.0013, spd: 0.0022, op: 0.38, thickness: 9.0,
-      c1: [37, 99, 235], c2: [139, 92, 246]
+      amp: 11, freq: 0.0013, spd: 0.0022, op: 0.65, thickness: 9.5,
+      c1: [76, 175, 80], c2: [255, 213, 79] // Sprout Green to Sun Yellow
     },
     listening: {
-      amp: 22, freq: 0.0030, spd: 0.0055, op: 0.78, thickness: 14.0,
-      c1: [6, 182, 212], c2: [37, 99, 235]
+      amp: 24, freq: 0.0030, spd: 0.0055, op: 0.85, thickness: 14.0,
+      c1: [100, 181, 246], c2: [38, 198, 218] // Flowing Rain Water Blue to Aqua Teal
     },
     thinking: {
-      amp: 15, freq: 0.0017, spd: 0.0035, op: 0.62, thickness: 11.5,
-      c1: [168, 85, 247], c2: [236, 72, 153]
+      amp: 16, freq: 0.0017, spd: 0.0035, op: 0.72, thickness: 12.0,
+      c1: [141, 110, 99], c2: [255, 167, 38] // Nutrient Soil Brown to Amber Energy
     },
     speaking: {
-      amp: 30, freq: 0.0026, spd: 0.0045, op: 0.90, thickness: 16.0,
-      c1: [6, 182, 212], c2: [139, 92, 246]
+      amp: 32, freq: 0.0026, spd: 0.0045, op: 0.95, thickness: 16.5,
+      c1: [255, 213, 79], c2: [255, 112, 67] // Golden Harvest Yellow to Sunlight Orange
     }
   };
 
   // Kinetic easing system parameters
   let cur = {
-    amp: 10, freq: 0.0013, spd: 0.0022, op: 0.38, thickness: 9.0,
-    c1: [37, 99, 235], c2: [139, 92, 246]
+    amp: 11, freq: 0.0013, spd: 0.0022, op: 0.65, thickness: 9.5,
+    c1: [76, 175, 80], c2: [255, 213, 79]
   };
 
   let time = 0;
@@ -627,8 +627,8 @@ if (btnSend && textInput) {
       }
     }
 
-    // 3. Setup Multi-Pass screen compositing
-    ctx.globalCompositeOperation = "screen";
+    // 3. Setup Multi-Pass standard compositing (source-over required for contrast on light BG)
+    ctx.globalCompositeOperation = "source-over";
     const cy = height / 2;
 
     // 4. Ambient Particles
@@ -698,8 +698,8 @@ if (btnSend && textInput) {
       // Core luminous filament tint gradient (Softened 85% White mix)
       const coreGrad = ctx.createLinearGradient(0, 0, width, 0);
       coreGrad.addColorStop(0, "rgba(255,255,255,0)");
-      coreGrad.addColorStop(0.3, `rgba(${Math.round(r1*0.2+255*0.8)}, ${Math.round(g1*0.2+255*0.8)}, ${Math.round(b1*0.2+255*0.8)}, ${opBase * 0.9})`);
-      coreGrad.addColorStop(0.7, `rgba(${Math.round(r2*0.2+255*0.8)}, ${Math.round(g2*0.2+255*0.8)}, ${Math.round(b2*0.2+255*0.8)}, ${opBase * 0.9})`);
+      coreGrad.addColorStop(0.3, `rgba(${Math.round(r1*0.35+255*0.65)}, ${Math.round(g1*0.35+255*0.65)}, ${Math.round(b1*0.35+255*0.65)}, ${opBase * 0.9})`);
+      coreGrad.addColorStop(0.7, `rgba(${Math.round(r2*0.35+255*0.65)}, ${Math.round(g2*0.35+255*0.65)}, ${Math.round(b2*0.35+255*0.65)}, ${opBase * 0.9})`);
       coreGrad.addColorStop(1, "rgba(255,255,255,0)");
 
       // Helper to draw a continuous quadratic bezier spline path through sampled points
@@ -722,7 +722,7 @@ if (btnSend && textInput) {
       ctx.shadowBlur = 45 * (cur.op + smoothAudioBoost * 0.25) * depthAlpha;
       ctx.shadowColor = `rgb(${r1}, ${g1}, ${b1})`;
       ctx.strokeStyle = strandGrad;
-      ctx.globalAlpha = 0.07 * depthAlpha;
+      ctx.globalAlpha = 0.16 * depthAlpha;
       ctx.stroke();
 
       // PASS 2: Thick Fluid Sheath
@@ -730,14 +730,14 @@ if (btnSend && textInput) {
       ctx.lineWidth = (cur.thickness * 1.2 + (smoothAudioBoost * 3.0)) * depthScale;
       ctx.shadowBlur = 25 * depthScale;
       ctx.shadowColor = `rgb(${r2}, ${g2}, ${b2})`;
-      ctx.globalAlpha = 0.20 * depthAlpha;
+      ctx.globalAlpha = 0.35 * depthAlpha;
       ctx.stroke();
 
       // PASS 3: Main Energy Body
       drawPath();
       ctx.lineWidth = (cur.thickness * 0.6 + (smoothAudioBoost * 1.5)) * depthScale;
       ctx.shadowBlur = 12 * depthScale;
-      ctx.globalAlpha = 0.45 * depthAlpha;
+      ctx.globalAlpha = 0.65 * depthAlpha;
       ctx.stroke();
 
       // PASS 4: Softened Holographic Core Inner Filament
@@ -746,7 +746,7 @@ if (btnSend && textInput) {
       ctx.shadowBlur = 6 * depthScale;
       ctx.shadowColor = "#ffffff";
       ctx.strokeStyle = coreGrad;
-      ctx.globalAlpha = 0.72 * cur.op * depthAlpha;
+      ctx.globalAlpha = 0.85 * cur.op * depthAlpha;
       ctx.stroke();
 
       // Reset system alpha

@@ -1,78 +1,22 @@
-/* ====================================================
-   KIYARI Agriculture Assistant Stylesheet
-   Nature-inspired Light theme with Sun & Crops accents
+﻿/* ====================================================
+   KIYARI AI — Voice Assistant Stylesheet
+   Deep dark theme with blue-cyan accent orb
    ==================================================== */
-
-:root {
-  --bg-light: #FFF8E1;       /* Soft Beige Background */
-  --primary: #FFD54F;        /* Sunlight Yellow */
-  --secondary: #4CAF50;      /* Crop Growth Green */
-  --secondary-hover: #43a047;
-  --accent: #64B5F6;         /* Rain/Climate Blue */
-  --earth: #6D4C41;          /* Soil Brown Base */
-  --earth-dark: #3e2723;     /* Rich Nutrient Soil for heavy text */
-  --glass-light: rgba(255, 255, 255, 0.55);
-}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
   font-size: 16px;
   scroll-behavior: smooth;
-  background: var(--bg-light);
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
-  background: var(--bg-light);
-  color: var(--earth-dark);
+  font-family: 'DM Sans', 'Syne', sans-serif;
+  background: #07091a;
+  color: #fff;
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  touch-action: manipulation; /* Fast mobile taps & prevent accidental pinch-zoom */
-  /* Soft radial sunrise gradient texture */
-  background-image: radial-gradient(circle at 50% -10%, rgba(255, 213, 79, 0.15) 0%, transparent 50%),
-                    radial-gradient(circle at 10% 100%, rgba(76, 175, 80, 0.08) 0%, transparent 40%);
-}
-
-/* ─── Ambient Fullscreen Voice Waves ─── */
-/* Always active since JS controls state transition opacity inside the canvas context */
-.voice-wave-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1;
-  pointer-events: none;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-}
-
-.voice-wave-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  /* Apply GPU acceleration for dynamic fullscreen canvas */
-  will-change: filter, transform;
-  transform: translateZ(0);
-}
-
-/* Vignette overlay to feather the edges perfectly against the light beige backdrop */
-.voice-wave-mask {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, rgba(255,248,225,0) 30%, rgba(255,248,225,0.45) 65%, var(--bg-light) 100%);
-  pointer-events: none;
 }
 
 /* ─── Bottom Ambient Glow ─── */
@@ -85,7 +29,7 @@ body {
   height: 400px;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(ellipse, rgba(76,175,80,0.15) 0%, rgba(255,213,79,0.1) 50%, transparent 75%);
+  background: radial-gradient(ellipse, rgba(30,80,220,0.3) 0%, rgba(20,50,180,0.12) 50%, transparent 75%);
   filter: blur(50px);
 }
 
@@ -93,29 +37,22 @@ body {
 .page-container {
   position: relative;
   z-index: 10;
-  width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh; /* Modern responsive dynamic viewport height for mobile browsers */
-  display: flex;
-  flex-direction: column;
-  padding: 0;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px;
 }
 
 /* ─── Navbar ─── */
 .nav-pill {
-  background: var(--glass-light);
-  border: 1px solid rgba(109,76,65,0.15);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-  width: 92%;
-  max-width: 900px;
-  margin: 24px auto;
-  box-shadow: 0 4px 20px rgba(109,76,65,0.05);
+  margin-bottom: 40px;
   animation: fadeUp 0.5s ease-out 0.1s both;
 }
 
@@ -129,16 +66,15 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  box-shadow: 0 0 16px rgba(76,175,80,0.3);
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  box-shadow: 0 0 16px rgba(96,165,250,0.5);
 }
 
 .nav-brand {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Syne', sans-serif;
   font-weight: 600;
   font-size: 14px;
   letter-spacing: 0.06em;
-  color: var(--earth-dark);
 }
 
 .nav-right {
@@ -163,36 +99,25 @@ body {
 .try-btn:hover { transform: scale(1.04); }
 
 .ghost-btn {
-  background: rgba(109,76,65,0.04);
-  border: 1px solid rgba(109,76,65,0.15);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 999px;
   padding: 7px 18px;
   font-size: 13px;
-  color: var(--earth-dark);
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
-  font-weight: 500;
   transition: all 0.2s;
   font-family: inherit;
 }
-.ghost-btn:hover { 
-  background: rgba(109,76,65,0.08); 
-  border-color: var(--earth);
-}
+.ghost-btn:hover { background: rgba(255,255,255,0.09); }
 
 /* ─── Hero Card ─── */
 .hero-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: transparent; /* Transparent to let the immersive fullscreen waveform flow behind */
-  border: none;
-  border-radius: 0;
+  background: linear-gradient(160deg, #0d1535 0%, #0a0f28 40%, #06081a 100%);
+  border: 1px solid rgba(100,140,255,0.12);
+  border-radius: 28px;
   overflow: hidden;
-  padding: 40px 20px;
-  width: 100%;
-  margin: 0;
+  padding: 56px 32px 0;
   animation: fadeUp 0.5s ease-out 0.25s both;
 }
 
@@ -201,16 +126,16 @@ body {
 }
 
 .hero-title {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Syne', sans-serif;
   font-size: clamp(28px, 5vw, 48px);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.02em;
-  color: var(--earth-dark);
+  color: rgba(220,230,255,0.92);
 }
 
 .hero-accent {
-  color: var(--secondary);
+  color: #93c5fd;
 }
 
 /* ─── Orb Area ─── */
@@ -222,10 +147,29 @@ body {
   margin-top: 40px;
 }
 
+.orb-top-glow {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  height: 150px;
+  pointer-events: none;
+  background: radial-gradient(ellipse, rgba(60,120,255,0.22) 0%, transparent 70%);
+  filter: blur(20px);
+}
+
 .orb-wrapper {
   position: relative;
   width: 280px;
   height: 280px;
+}
+
+.orb-wrapper canvas {
+  width: 280px;
+  height: 280px;
+  position: relative;
+  z-index: 10;
 }
 
 /* ─── Orb Centre Mic Button ─── */
@@ -278,7 +222,28 @@ body {
   opacity: 0.9;
 }
 
-
+/* ─── Floor Glow ─── */
+.orb-floor-glow {
+  position: absolute;
+  bottom: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 220px;
+  filter: blur(34px);
+  pointer-events: none;
+  transition: background 0.5s;
+  background: radial-gradient(ellipse, rgba(37,99,235,0.5) 0%, rgba(20,60,200,0.18) 45%, transparent 72%);
+}
+.orb-floor-glow.listening {
+  background: radial-gradient(ellipse, rgba(0,200,255,0.55) 0%, transparent 70%);
+}
+.orb-floor-glow.thinking {
+  background: radial-gradient(ellipse, rgba(140,80,255,0.48) 0%, transparent 70%);
+}
+.orb-floor-glow.speaking {
+  background: radial-gradient(ellipse, rgba(0,220,120,0.45) 0%, transparent 70%);
+}
 
 /* ─── CTA / Speak Button ─── */
 .cta-area {
@@ -292,42 +257,31 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 24px;
-  /* Asymmetric Leaf-accented borders */
-  border-radius: 24px 6px 24px 6px; 
-  font-size: 14px;
-  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 500;
   cursor: pointer;
-  color: var(--earth-dark);
+  color: white;
   border: none;
   transition: all 0.3s;
   font-family: inherit;
-  /* Lemon-slice inspired radial gradient */
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.25), 0 8px 24px rgba(255, 213, 79, 0.15);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 0 30px rgba(37,99,235,0.5), 0 4px 20px rgba(0,0,0,0.4);
 }
-.speak-btn:hover { 
-  transform: scale(1.04); 
-  box-shadow: 0 6px 24px rgba(76, 175, 80, 0.35);
-}
+.speak-btn:hover { transform: scale(1.04); }
 
 .speak-btn.listening {
-  /* Flowing Water Blue */
-  background: linear-gradient(135deg, var(--accent), #4fc3f7);
-  box-shadow: 0 4px 25px rgba(100, 181, 246, 0.4);
-  color: #fff;
+  background: linear-gradient(135deg, #0891b2, #0e7490);
+  box-shadow: 0 0 40px rgba(0,200,255,0.6);
 }
 .speak-btn.thinking {
-  /* Rich Earth Amber */
-  background: linear-gradient(135deg, #8d6e63, #d84315);
-  box-shadow: 0 4px 25px rgba(216, 67, 21, 0.3);
-  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  box-shadow: 0 0 40px rgba(140,80,255,0.6);
 }
 .speak-btn.speaking {
-  /* Radiant Harvest Golden Orange */
-  background: linear-gradient(135deg, var(--primary), #ff9800);
-  box-shadow: 0 4px 25px rgba(255, 152, 0, 0.4);
-  color: var(--earth-dark);
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 0 40px rgba(0,220,120,0.5);
 }
 
 /* ─── Pulse Dot ─── */
@@ -343,10 +297,10 @@ body {
   animation: pdot 1.4s ease-in-out infinite;
   display: inline-block;
 }
-.pdot.idle      { background: var(--earth-dark); }
-.pdot.listening { background: #ffffff; }
-.pdot.thinking  { background: #ffffff; animation-duration: 0.9s; }
-.pdot.speaking  { background: var(--earth-dark); animation-duration: 0.6s; }
+.pdot.idle      { background: #93c5fd; }
+.pdot.listening { background: #67e8f9; }
+.pdot.thinking  { background: #c4b5fd; animation-duration: 0.9s; }
+.pdot.speaking  { background: #6ee7b7; animation-duration: 0.6s; }
 
 /* ─── Feedback Area (transcript / reply) ─── */
 .feedback-area {
@@ -358,41 +312,33 @@ body {
 }
 
 .transcript-box {
-  background: var(--glass-light);
-  border: 1px solid rgba(109, 76, 65, 0.15);
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.08);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 14px 20px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-size: 13.5px;
   line-height: 1.65;
   max-width: 480px;
   margin: 0 auto;
   text-align: center;
-  color: var(--earth-dark);
-  box-shadow: 0 4px 20px rgba(109,76,65,0.05);
 }
 
 .transcript-label {
-  opacity: 0.6;
+  opacity: 0.45;
   font-size: 11px;
-  font-weight: 700;
   display: block;
   margin-bottom: 4px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--earth);
 }
 
 .transcript-you {
-  color: var(--accent);
-  font-weight: 700;
+  color: rgba(103,232,249,0.9);
 }
 
 .transcript-ai {
-  color: var(--secondary-hover);
-  font-weight: 700;
+  color: rgba(220,230,255,0.88);
 }
 
 /* ─── Error Box ─── */
@@ -410,12 +356,16 @@ body {
   z-index: 10;
 }
 
-/* ─── Feature Cards (Hidden to elevate ambient, immersive conversational presence) ─── */
+/* ─── Feature Cards ─── */
 .features-grid {
-  display: none; /* Pruned to remove SaaS/website clutter */
-}
-#navTryBtn {
-  display: none !important; /* Removed redundant SaaS-style trigger */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 40px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeUp 0.5s ease-out 0.45s both;
 }
 
 .feature-card {
@@ -461,35 +411,31 @@ body {
   flex: 1;
   padding: 12px 18px;
   border-radius: 12px;
-  border: 1.5px solid rgba(109,76,65,0.2);
+  border: 1px solid rgba(255,255,255,0.12);
   outline: none;
-  background: rgba(109,76,65,0.04); /* Subtle Soil texture simulation */
+  background: rgba(0,0,0,0.4);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: var(--earth-dark);
+  color: white;
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s;
+  font-size: 13.5px;
+  transition: border-color 0.3s;
 }
 .text-input-area input::placeholder {
-  color: rgba(109,76,65,0.45);
+  color: rgba(255,255,255,0.3);
 }
 .text-input-area input:focus {
-  border-color: var(--secondary);
-  box-shadow: 0 0 12px rgba(76, 175, 80, 0.2);
-  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(37,99,235,0.6);
 }
 
 .send-btn {
   padding: 12px 20px;
   border-radius: 12px;
   border: none;
-  background: var(--earth);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   font-family: inherit;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 0 16px rgba(37,99,235,0.3);
@@ -506,8 +452,8 @@ body {
 
 /* Tablet & small desktop */
 @media (max-width: 768px) {
-  .page-container { padding: 0; }
-  .hero-card { padding: 32px 16px; border-radius: 0; }
+  .page-container { padding: 20px 14px; }
+  .hero-card { padding: 40px 20px 0; border-radius: 22px; }
   .features-grid { gap: 12px; }
   .feature-card { padding: 22px; }
   .orb-floor-glow { width: 360px; height: 180px; }
@@ -515,12 +461,12 @@ body {
 
 /* Mobile */
 @media (max-width: 640px) {
-  .page-container { padding: 0; }
+  .page-container { padding: 14px 10px; }
 
   /* Navbar — compact */
   .nav-pill {
     padding: 8px 14px;
-    margin: 16px auto 24px;
+    margin-bottom: 24px;
     gap: 6px;
   }
   .nav-brand { display: none; }
@@ -535,14 +481,17 @@ body {
 
   /* Hero */
   .hero-card {
-    padding: 24px 12px;
-    border-radius: 0;
+    padding: 28px 14px 0;
+    border-radius: 18px;
   }
   .hero-title { font-size: clamp(22px, 6vw, 32px); }
 
   /* Orb — scaled down */
   .orb-area { margin-top: 28px; }
   .orb-wrapper { width: 220px; height: 220px; }
+  .orb-wrapper canvas { width: 220px; height: 220px; }
+  .orb-top-glow { width: 200px; height: 110px; }
+  .orb-floor-glow { width: 280px; height: 140px; bottom: -50px; }
 
   /* Orb mic button — bigger for touch */
   .orb-mic-btn {
@@ -611,9 +560,9 @@ body {
 
 /* Small phones (iPhone SE, Galaxy S series) */
 @media (max-width: 380px) {
-  .page-container { padding: 0; }
+  .page-container { padding: 10px 8px; }
 
-  .nav-pill { padding: 6px 10px; margin: 12px auto 18px; }
+  .nav-pill { padding: 6px 10px; margin-bottom: 18px; }
   .try-btn,
   .ghost-btn {
     padding: 7px 10px;
@@ -621,14 +570,17 @@ body {
   }
 
   .hero-card {
-    padding: 20px 8px;
-    border-radius: 0;
-    border-width: 0;
+    padding: 22px 10px 0;
+    border-radius: 14px;
+    border-width: 1px;
   }
   .hero-title { font-size: clamp(18px, 5.5vw, 26px); }
 
   .orb-area { margin-top: 20px; }
   .orb-wrapper { width: 180px; height: 180px; }
+  .orb-wrapper canvas { width: 180px; height: 180px; }
+  .orb-top-glow { width: 160px; height: 90px; }
+  .orb-floor-glow { width: 220px; height: 110px; bottom: -40px; }
 
   .orb-mic-btn { width: 48px; height: 48px; }
 
@@ -653,8 +605,11 @@ body {
 /* Landscape mobile */
 @media (max-height: 500px) and (orientation: landscape) {
   .orb-wrapper { width: 160px; height: 160px; }
+  .orb-wrapper canvas { width: 160px; height: 160px; }
   .orb-area { margin-top: 16px; }
+  .orb-floor-glow { width: 200px; height: 100px; bottom: -30px; }
   .hero-card { padding: 20px 16px 0; }
   .cta-area { margin-top: 12px; margin-bottom: 12px; }
   .features-grid { grid-template-columns: repeat(2, 1fr); margin-top: 16px; }
 }
+

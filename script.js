@@ -678,7 +678,9 @@ if (btnSend && textInput) {
         // Subtle vertical axial drift that shifts strands relative to each other over time
         const slowDrift = Math.sin(t * 0.001 + strand.drift) * 6 * envelope;
         
-        const dynamicAmp = (cur.amp + (smoothAudioBoost * 32)) * strand.ampMult;
+        // Prevent vertical overshoot on constrained mobile viewports
+        const responsiveAmpScalar = width < 600 ? Math.max(0.65, width / 600) : 1.0;
+        const dynamicAmp = (cur.amp + (smoothAudioBoost * 32)) * strand.ampMult * responsiveAmpScalar;
         const y = cy + (wave * dynamicAmp * envelope) + slowDrift;
         
         points.push({ x, y });

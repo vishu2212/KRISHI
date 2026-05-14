@@ -533,6 +533,14 @@ body {
 @media (max-width: 640px) {
   .page-container { padding: 0; }
 
+  /* Ambient Glow override */
+  .bottom-glow { 
+    width: 480px; 
+    height: 220px; 
+    bottom: -60px; 
+    filter: blur(35px);
+  }
+
   /* Navbar — compact */
   .nav-pill {
     padding: 8px 14px;

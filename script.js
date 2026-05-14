@@ -655,6 +655,15 @@ if (btnSend && textInput) {
     ];
 
     strands.forEach((strand) => {
+      // 3D Depth Simulation for Holographic DNA cylindrical helix winding (Z-axis depth mapping)
+      const zAngle = (t * cur.spd * 0.65) + strand.phase;
+      const zDepth = Math.cos(zAngle); // Oscillates between -1 (behind) and +1 (in front)
+      
+      // Center filament has stable depth; outer DNA strands scale and fade to model cylindrical rotation
+      const isCoreStrand = (strand.ampMult < 0.5);
+      const depthScale = isCoreStrand ? 0.85 : (1.0 + (zDepth * 0.22)); 
+      const depthAlpha = isCoreStrand ? 0.70 : (1.0 + (zDepth * 0.25));
+
       // Trace multi-harmonic geometry for fluid motion
       const points = [];
       const step = 8;
@@ -709,35 +718,35 @@ if (btnSend && textInput) {
       
       // PASS 1: Ultra-Wide Volumetric Bloom Glow
       drawPath();
-      ctx.lineWidth = cur.thickness * 2.4 + (smoothAudioBoost * 6.0);
-      ctx.shadowBlur = 45 * (cur.op + smoothAudioBoost * 0.25);
+      ctx.lineWidth = (cur.thickness * 2.4 + (smoothAudioBoost * 6.0)) * depthScale;
+      ctx.shadowBlur = 45 * (cur.op + smoothAudioBoost * 0.25) * depthAlpha;
       ctx.shadowColor = `rgb(${r1}, ${g1}, ${b1})`;
       ctx.strokeStyle = strandGrad;
-      ctx.globalAlpha = 0.07;
+      ctx.globalAlpha = 0.07 * depthAlpha;
       ctx.stroke();
 
       // PASS 2: Thick Fluid Sheath
       drawPath();
-      ctx.lineWidth = cur.thickness * 1.2 + (smoothAudioBoost * 3.0);
-      ctx.shadowBlur = 25;
+      ctx.lineWidth = (cur.thickness * 1.2 + (smoothAudioBoost * 3.0)) * depthScale;
+      ctx.shadowBlur = 25 * depthScale;
       ctx.shadowColor = `rgb(${r2}, ${g2}, ${b2})`;
-      ctx.globalAlpha = 0.20;
+      ctx.globalAlpha = 0.20 * depthAlpha;
       ctx.stroke();
 
       // PASS 3: Main Energy Body
       drawPath();
-      ctx.lineWidth = cur.thickness * 0.6 + (smoothAudioBoost * 1.5);
-      ctx.shadowBlur = 12;
-      ctx.globalAlpha = 0.45;
+      ctx.lineWidth = (cur.thickness * 0.6 + (smoothAudioBoost * 1.5)) * depthScale;
+      ctx.shadowBlur = 12 * depthScale;
+      ctx.globalAlpha = 0.45 * depthAlpha;
       ctx.stroke();
 
       // PASS 4: Softened Holographic Core Inner Filament
       drawPath();
-      ctx.lineWidth = 1.5 + (smoothAudioBoost * 0.5);
-      ctx.shadowBlur = 6;
+      ctx.lineWidth = (1.5 + (smoothAudioBoost * 0.5)) * depthScale;
+      ctx.shadowBlur = 6 * depthScale;
       ctx.shadowColor = "#ffffff";
       ctx.strokeStyle = coreGrad;
-      ctx.globalAlpha = 0.72 * cur.op;
+      ctx.globalAlpha = 0.72 * cur.op * depthAlpha;
       ctx.stroke();
 
       // Reset system alpha

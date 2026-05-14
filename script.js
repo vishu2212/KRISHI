@@ -558,6 +558,11 @@ async function startListening() {
   rec.onstart = () => setVoiceState("listening");
 
   rec.onerror = (e) => {
+    // Suppress 'no-speech' and 'aborted' as they are normal silent lifecycle events, not actual hardware errors
+    if (e.error === "no-speech" || e.error === "aborted") {
+      setVoiceState("idle");
+      return;
+    }
     showError("Mic error: " + e.error);
     setVoiceState("idle");
   };

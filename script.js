@@ -479,7 +479,7 @@ if (btnSend && textInput) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  IMMERSIVE DNA-STYLE FULL-WIDTH PROCEDURAL WAVEFORM ENGINE
+//  IMMERSIVE FLUID DYNAMIC DNA WAVEFORM ENGINE (V3 CINEMATIC)
 // ═══════════════════════════════════════════════════════════
 (function initHorizontalWaveform() {
   const canvas = document.getElementById("horizontalWaveform");
@@ -502,24 +502,22 @@ if (btnSend && textInput) {
     canvas.style.height = height + "px";
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
-    
-    // Re-seed particles if width changes dramatically
     initParticles();
   }
 
-  // ─── Floating Energy Particles (Cosmic Depth) ───
+  // ─── Ambient Stardust (Subtle Atmospheric Particles) ───
   let particles = [];
   function initParticles() {
     particles = [];
-    const particleCount = Math.floor(width * 0.03); // responsive count
-    for (let i = 0; i < Math.min(40, Math.max(15, particleCount)); i++) {
+    const count = Math.min(35, Math.max(15, Math.floor(width * 0.02)));
+    for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.random() * 1.8 + 0.8,
-        speedX: (Math.random() - 0.5) * 0.25,
-        speedY: (Math.random() - 0.5) * 0.25,
-        alpha: Math.random() * 0.4 + 0.1,
+        size: Math.random() * 1.5 + 0.6,
+        speedX: (Math.random() - 0.5) * 0.18,
+        speedY: (Math.random() - 0.5) * 0.18,
+        alpha: Math.random() * 0.35 + 0.05,
         phase: Math.random() * Math.PI * 2
       });
     }
@@ -533,33 +531,29 @@ if (btnSend && textInput) {
     resizeTimer = setTimeout(resize, 150);
   });
 
-  // Atmospheric configurations (Slower speeds, deeper frequencies, thick volumetric scaling)
+  // V3 Atmospheric configurations (Super slow, ultra-thick, elegant elongated wavelengths)
   const states = {
     idle: {
-      amp: 12, freq: 0.0018, spd: 0.003, op: 0.32, thickness: 7.0,
-      c1: [37, 99, 235],  // Deep Blue
-      c2: [139, 92, 246] // Soft Violet
+      amp: 10, freq: 0.0013, spd: 0.0022, op: 0.38, thickness: 9.0,
+      c1: [37, 99, 235], c2: [139, 92, 246]
     },
     listening: {
-      amp: 30, freq: 0.0045, spd: 0.008, op: 0.75, thickness: 9.5,
-      c1: [6, 182, 212], // Electric Cyan
-      c2: [37, 99, 235]  // Electric Blue
+      amp: 22, freq: 0.0030, spd: 0.0055, op: 0.78, thickness: 14.0,
+      c1: [6, 182, 212], c2: [37, 99, 235]
     },
     thinking: {
-      amp: 20, freq: 0.0025, spd: 0.004, op: 0.55, thickness: 8.0,
-      c1: [168, 85, 247], // Purple
-      c2: [236, 72, 153]  // Magenta
+      amp: 15, freq: 0.0017, spd: 0.0035, op: 0.62, thickness: 11.5,
+      c1: [168, 85, 247], c2: [236, 72, 153]
     },
     speaking: {
-      amp: 42, freq: 0.0038, spd: 0.006, op: 0.85, thickness: 10.0,
-      c1: [6, 182, 212],  // Cyan highlights
-      c2: [139, 92, 246] // Blue-Purple gradient
+      amp: 30, freq: 0.0026, spd: 0.0045, op: 0.90, thickness: 16.0,
+      c1: [6, 182, 212], c2: [139, 92, 246]
     }
   };
 
-  // Kinetic physics variables
+  // Kinetic easing system parameters
   let cur = {
-    amp: 12, freq: 0.0018, spd: 0.003, op: 0.3, thickness: 7.0,
+    amp: 10, freq: 0.0013, spd: 0.0022, op: 0.38, thickness: 9.0,
     c1: [37, 99, 235], c2: [139, 92, 246]
   };
 
@@ -569,9 +563,9 @@ if (btnSend && textInput) {
   function draw(t) {
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Smooth Parameter Easing Loop
+    // 1. Dynamic Kinetic Interpolation
     const target = states[voiceState] || states.idle;
-    const ease = 0.065; // extremely smooth transitions for calm intelligence
+    const ease = 0.055; // slower ease for "heavier", more intentional shifts
     
     cur.amp       += (target.amp - cur.amp) * ease;
     cur.freq      += (target.freq - cur.freq) * ease;
@@ -584,120 +578,148 @@ if (btnSend && textInput) {
       cur.c2[i] += (target.c2[i] - cur.c2[i]) * ease;
     }
 
-    // 2. Real-Time Web Audio Calculation
+    // 2. Real-Time Volume Modulations
     let audioBoost = 0;
     if (voiceState === "listening") {
-      audioBoost = micVolume * 2.8;
+      audioBoost = micVolume * 2.4;
     } else if (voiceState === "speaking") {
-      const speakT = Date.now() / 110; // slower voice osc envelope
-      audioBoost = (0.25 + Math.abs(Math.sin(speakT * 0.7) * 0.4 + Math.sin(speakT * 1.3) * 0.25)) * 1.1;
+      const speakT = Date.now() / 130;
+      audioBoost = (0.2 + Math.abs(Math.sin(speakT * 0.65) * 0.45 + Math.sin(speakT * 1.2) * 0.25)) * 1.05;
     }
-    smoothAudioBoost += (audioBoost - smoothAudioBoost) * 0.12; // slower decay for inertia
+    smoothAudioBoost += (audioBoost - smoothAudioBoost) * 0.10;
 
-    // ─── Central Interactive Mic Button Pulse ───
+    // ─── Mic Button Pulse (Bound to DNA cadence) ───
     if (orbMicBtn) {
-      const micPulse = 1 + smoothAudioBoost * 0.18;
+      const micPulse = 1 + smoothAudioBoost * 0.15;
       orbMicBtn.style.transform = `translate(-50%, -50%) scale(${micPulse})`;
       
       if (voiceState === "listening") {
-        const shadowBlur = 20 + smoothAudioBoost * 35;
-        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 200, 255, ${0.4 + smoothAudioBoost * 0.5})`;
+        const shadowBlur = 25 + smoothAudioBoost * 30;
+        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 200, 255, ${0.35 + smoothAudioBoost * 0.5})`;
       } else if (voiceState === "speaking") {
-        const shadowBlur = 20 + smoothAudioBoost * 35;
-        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 240, 120, ${0.4 + smoothAudioBoost * 0.5})`;
+        const shadowBlur = 25 + smoothAudioBoost * 30;
+        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 240, 120, ${0.35 + smoothAudioBoost * 0.5})`;
       } else if (voiceState === "thinking") {
-        orbMicBtn.style.boxShadow = `0 0 24px rgba(140, 80, 255, 0.4)`;
+        orbMicBtn.style.boxShadow = `0 0 24px rgba(140, 80, 255, 0.35)`;
       } else {
         orbMicBtn.style.boxShadow = "";
       }
     }
 
-    // 3. Layered Blending Setup
+    // 3. Setup Multi-Pass screen compositing
     ctx.globalCompositeOperation = "screen";
-    const baseColor1 = `rgb(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])})`;
-    
     const cy = height / 2;
 
-    // 4. Draw Floating Energy Particles (Background Layer)
+    // 4. Ambient Particles
     particles.forEach((p) => {
       p.x += p.speedX;
-      p.y += p.speedY + Math.sin(t * 0.002 + p.phase) * 0.08;
-      
-      // Re-wrap screens
+      p.y += p.speedY + Math.sin(t * 0.001 + p.phase) * 0.05;
       if (p.x < 0) p.x = width;
       if (p.x > width) p.x = 0;
       if (p.y < 0) p.y = height;
       if (p.y > height) p.y = 0;
 
-      // Pulse opacity gently
-      const finalAlpha = p.alpha * (0.3 + Math.sin(t * 0.01 + p.phase) * 0.2) * cur.op;
-      
+      const pAlpha = p.alpha * (0.4 + Math.sin(t * 0.008 + p.phase) * 0.2) * cur.op;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, ${finalAlpha})`;
+      ctx.fillStyle = `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, ${pAlpha})`;
       ctx.fill();
     });
 
-    // 5. DNA Double Helix Strand Rendering
-    // We render 2 major intertwining anti-phase strands + 1 core energy strand.
-    // Rendering in a dual-pass loop creates volumetric tubes (wide glow pass + sharp core pass).
-    
+    // 5. Layered Intertwining Strands (DNA Strands A & B + Central Flow)
     const strands = [
-      { phase: 0, freqMult: 1.0, ampMult: 1.0 },                 // Strand A
-      { phase: Math.PI, freqMult: 1.0, ampMult: 1.0 },           // Strand B (Intertwining DNA)
-      { phase: Math.PI * 0.5, freqMult: 1.5, ampMult: 0.45 }     // Core connective ribbon
+      { phase: 0, freqMult: 1.0, ampMult: 1.0, drift: 0 },
+      { phase: Math.PI, freqMult: 1.0, ampMult: 1.0, drift: Math.PI * 0.25 },
+      { phase: Math.PI * 0.5, freqMult: 1.4, ampMult: 0.35, drift: Math.PI * 0.5 }
     ];
 
     strands.forEach((strand) => {
-      // Trace geometry once
+      // Trace multi-harmonic geometry for fluid motion
       const points = [];
-      const step = 6;
+      const step = 8;
       for (let x = 0; x <= width; x += step) {
-        const envelope = Math.pow(Math.sin((x / width) * Math.PI), 2.0); // Sinusoidal tapering
+        const envelope = Math.pow(Math.sin((x / width) * Math.PI), 2.2); 
         
+        // Complex non-repeating triple-harmonic sinusoidal interference for fluid dynamics
         let wave = Math.sin((x * cur.freq * strand.freqMult) + t * cur.spd + strand.phase);
-        wave += Math.sin((x * cur.freq * 1.8) - t * (cur.spd * 0.7) + strand.phase * 1.4) * 0.22;
+        wave += Math.sin((x * cur.freq * 0.65) + t * (cur.spd * 0.55) - strand.phase * 0.8) * 0.38;
+        wave += Math.sin((x * cur.freq * 1.35) - t * (cur.spd * 0.75) + strand.phase * 1.5) * 0.16;
         
-        const dynamicAmp = (cur.amp + (smoothAudioBoost * 40)) * strand.ampMult;
-        const y = cy + (wave * dynamicAmp * envelope);
+        // Subtle vertical axial drift that shifts strands relative to each other over time
+        const slowDrift = Math.sin(t * 0.001 + strand.drift) * 6 * envelope;
+        
+        const dynamicAmp = (cur.amp + (smoothAudioBoost * 32)) * strand.ampMult;
+        const y = cy + (wave * dynamicAmp * envelope) + slowDrift;
+        
         points.push({ x, y });
       }
 
-      // Create gradient for this strand
+      // Generate dynamic gradients
       const strandGrad = ctx.createLinearGradient(0, 0, width, 0);
       const opBase = cur.op;
-      strandGrad.addColorStop(0, `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, 0)`);
-      strandGrad.addColorStop(0.3, `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, ${opBase})`);
-      strandGrad.addColorStop(0.7, `rgba(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])}, ${opBase})`);
-      strandGrad.addColorStop(1, `rgba(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])}, 0)`);
+      const r1 = Math.round(cur.c1[0]), g1 = Math.round(cur.c1[1]), b1 = Math.round(cur.c1[2]);
+      const r2 = Math.round(cur.c2[0]), g2 = Math.round(cur.c2[1]), b2 = Math.round(cur.c2[2]);
 
-      // PASS 1: Wide Volumetric Glow Pass
-      ctx.beginPath();
-      points.forEach((p, idx) => {
-        if (idx === 0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
-      });
-      ctx.strokeStyle = strandGrad;
-      ctx.lineWidth = cur.thickness + (smoothAudioBoost * 5.0);
-      ctx.shadowBlur = 35 * (cur.op + smoothAudioBoost * 0.3);
-      ctx.shadowColor = baseColor1;
-      ctx.globalAlpha = 0.3; // Soft luminous presence
-      ctx.stroke();
+      strandGrad.addColorStop(0, `rgba(${r1}, ${g1}, ${b1}, 0)`);
+      strandGrad.addColorStop(0.25, `rgba(${r1}, ${g1}, ${b1}, ${opBase})`);
+      strandGrad.addColorStop(0.75, `rgba(${r2}, ${g2}, ${b2}, ${opBase})`);
+      strandGrad.addColorStop(1, `rgba(${r2}, ${g2}, ${b2}, 0)`);
 
-      // PASS 2: Sharp Luminous Nucleus Core Pass
-      ctx.beginPath();
-      points.forEach((p, idx) => {
-        if (idx === 0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
-      });
-      ctx.lineWidth = 2.5 + (smoothAudioBoost * 0.8);
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = "#ffffff";
-      ctx.strokeStyle = "#ffffff"; // bright nucleus
-      ctx.globalAlpha = 0.75 * cur.op;
-      ctx.stroke();
+      // Core luminous filament tint gradient (Softened 85% White mix)
+      const coreGrad = ctx.createLinearGradient(0, 0, width, 0);
+      coreGrad.addColorStop(0, "rgba(255,255,255,0)");
+      coreGrad.addColorStop(0.3, `rgba(${Math.round(r1*0.2+255*0.8)}, ${Math.round(g1*0.2+255*0.8)}, ${Math.round(b1*0.2+255*0.8)}, ${opBase * 0.9})`);
+      coreGrad.addColorStop(0.7, `rgba(${Math.round(r2*0.2+255*0.8)}, ${Math.round(g2*0.2+255*0.8)}, ${Math.round(b2*0.2+255*0.8)}, ${opBase * 0.9})`);
+      coreGrad.addColorStop(1, "rgba(255,255,255,0)");
+
+      // Helper to draw a continuous quadratic bezier spline path through sampled points
+      function drawPath() {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length - 1; i++) {
+          const xc = (points[i].x + points[i + 1].x) / 2;
+          const yc = (points[i].y + points[i + 1].y) / 2;
+          ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+        }
+        ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      }
+
+      // V3 QUAD-PASS LAYERED VOLUMETRIC RENDER SHADER
       
-      // Reset alpha
+      // PASS 1: Ultra-Wide Volumetric Bloom Glow
+      drawPath();
+      ctx.lineWidth = cur.thickness * 2.4 + (smoothAudioBoost * 6.0);
+      ctx.shadowBlur = 45 * (cur.op + smoothAudioBoost * 0.25);
+      ctx.shadowColor = `rgb(${r1}, ${g1}, ${b1})`;
+      ctx.strokeStyle = strandGrad;
+      ctx.globalAlpha = 0.07;
+      ctx.stroke();
+
+      // PASS 2: Thick Fluid Sheath
+      drawPath();
+      ctx.lineWidth = cur.thickness * 1.2 + (smoothAudioBoost * 3.0);
+      ctx.shadowBlur = 25;
+      ctx.shadowColor = `rgb(${r2}, ${g2}, ${b2})`;
+      ctx.globalAlpha = 0.20;
+      ctx.stroke();
+
+      // PASS 3: Main Energy Body
+      drawPath();
+      ctx.lineWidth = cur.thickness * 0.6 + (smoothAudioBoost * 1.5);
+      ctx.shadowBlur = 12;
+      ctx.globalAlpha = 0.45;
+      ctx.stroke();
+
+      // PASS 4: Softened Holographic Core Inner Filament
+      drawPath();
+      ctx.lineWidth = 1.5 + (smoothAudioBoost * 0.5);
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = "#ffffff";
+      ctx.strokeStyle = coreGrad;
+      ctx.globalAlpha = 0.72 * cur.op;
+      ctx.stroke();
+
+      // Reset system alpha
       ctx.globalAlpha = 1.0;
     });
   }

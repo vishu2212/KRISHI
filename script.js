@@ -88,171 +88,7 @@ const gameState = {
   playerCards: [],
 };
 
-// ═══════════════════════════════════════════════════════════
-//  PARTICLE SPHERE — 3D orb rendered to <canvas>
-// ═══════════════════════════════════════════════════════════
-(function initAudioWaveform() {
-  const canvas = document.getElementById("particleSphere");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
 
-  const wrapper = canvas.parentElement;
-  function getOrbSize() {
-    return wrapper ? wrapper.clientWidth : 280;
-  }
-
-  let SIZE = getOrbSize();
-  const dpr  = window.devicePixelRatio || 1;
-
-  function resizeCanvas() {
-    SIZE = getOrbSize();
-    canvas.width  = SIZE * dpr;
-    canvas.height = SIZE * dpr;
-    canvas.style.width  = SIZE + "px";
-    canvas.style.height = SIZE + "px";
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-  }
-  resizeCanvas();
-
-  let resizeTimer;
-  window.addEventListener("resize", () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resizeCanvas, 150);
-  });
-
-  // State visual parameters (speeds, scales, aesthetics)
-  const layers = [
-    { color: "rgba(37, 99, 235, 0.65)", shadow: "rgba(37, 99, 235, 0.4)", rot: 0, spd: 0.015, freq: 4, phase: 0.3 },
-    { color: "rgba(6, 182, 212, 0.75)", shadow: "rgba(6, 182, 212, 0.5)", rot: 0, spd: -0.02,  freq: 6, phase: 0.7 },
-    { color: "rgba(139, 92, 246, 0.6)", shadow: "rgba(139, 92, 246, 0.35)", rot: 0, spd: 0.01,  freq: 5, phase: 1.1 }
-  ];
-
-  let time = 0;
-  let smoothVol = 0;
-  const orbMicBtn = document.getElementById("orbMicBtn");
-
-  function draw(t) {
-    const cx = SIZE / 2, cy = SIZE / 2;
-    const baseR = SIZE * 0.28;
-    
-    ctx.clearRect(0, 0, SIZE, SIZE);
-    
-    // Calculate unified volume from state + analyser
-    let targetVol = 0;
-    if (voiceState === "listening") {
-      targetVol = micVolume; // real live mic volume
-    } else if (voiceState === "speaking") {
-      // Procedural voice metrics for speaking mode
-      const ts = Date.now() / 100;
-      targetVol = 0.25 + Math.abs(Math.sin(ts * 0.8) * 0.4 + Math.sin(ts * 1.5) * 0.25) * 0.5;
-    } else if (voiceState === "thinking") {
-      targetVol = 0.1 + Math.sin(Date.now() / 200) * 0.03;
-    } else {
-      // Serene breathing ambient rhythm for idle
-      targetVol = 0.02 + Math.sin(Date.now() / 1500) * 0.01;
-    }
-    
-    // Fast attack, slow release interpolation for buttery-smooth kinetics
-    smoothVol += (targetVol - smoothVol) * 0.18;
-
-    // Force dynamic safe scale & holographic glow on the central mic button based on audio intensity
-    if (orbMicBtn) {
-      const micPulse = 1 + smoothVol * 0.18;
-      orbMicBtn.style.transform = `translate(-50%, -50%) scale(${micPulse})`;
-      
-      if (voiceState === "listening") {
-        const shadowBlur = 20 + smoothVol * 35;
-        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 200, 255, ${0.4 + smoothVol * 0.5})`;
-      } else if (voiceState === "speaking") {
-        const shadowBlur = 20 + smoothVol * 35;
-        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 240, 120, ${0.4 + smoothVol * 0.5})`;
-      } else {
-        orbMicBtn.style.boxShadow = ""; // default
-      }
-    }
-
-    // Set composition to Screen for premium holographic blending
-    ctx.globalCompositeOperation = "lighter";
-
-    // Extract live frequency bin data for wave morphing if available
-    let spectrum = [];
-    if (voiceState === "listening" && analyser && dataArray) {
-      analyser.getByteFrequencyData(dataArray);
-      // Map frequency array bins down to a dense sample array for performance
-      for (let i = 0; i < 60; i++) {
-        spectrum.push((dataArray[i] || 0) / 255.0);
-      }
-    }
-
-    // Draw the procedural morphing ribbon layers
-    layers.forEach((layer, layerIdx) => {
-      layer.rot += layer.spd * (1 + smoothVol * 1.5);
-      
-      ctx.beginPath();
-      ctx.lineWidth = 1.6 + (smoothVol * 1.2);
-      ctx.strokeStyle = layer.color;
-      
-      // Add deep luminous neon glows
-      ctx.shadowColor = layer.shadow;
-      ctx.shadowBlur = 12 + (smoothVol * 25);
-
-      const totalPoints = 120;
-      for (let i = 0; i <= totalPoints; i++) {
-        const theta = (i / totalPoints) * Math.PI * 2;
-        const currentAngle = theta + layer.rot;
-
-        // Calculate organic wave height using layers of sine interference
-        let waveFactor = Math.sin(theta * layer.freq + t * 2.5 + layer.phase) * 0.35;
-        waveFactor += Math.cos(theta * (layer.freq + 2) - t * 1.8) * 0.2;
-        
-        // Inject real frequency data if actively listening
-        let localAudio = 0;
-        if (voiceState === "listening" && spectrum.length > 0) {
-          const specIdx = Math.floor((theta / (Math.PI * 2)) * spectrum.length) % spectrum.length;
-          localAudio = spectrum[specIdx] * 0.85;
-        }
-        
-        // Sum up dynamic radius (base + ambient oscillations + raw audio amplitude)
-        const waveHeight = 14 + (baseR * 0.3) * smoothVol;
-        const dynamicR = baseR + (waveFactor * waveHeight) + (localAudio * baseR * 0.4);
-
-        const x = cx + Math.cos(currentAngle) * dynamicR;
-        const y = cy + Math.sin(currentAngle) * dynamicR;
-
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.closePath();
-      ctx.stroke();
-    });
-
-    // Draw the core radiant nexus glow
-    ctx.shadowBlur = 0; // reset shadow for core
-    const gradR = baseR * 0.8;
-    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, gradR);
-    const baseColor = voiceState === "speaking" ? "rgba(0, 240, 120," : "rgba(0, 200, 255,";
-    cg.addColorStop(0, baseColor + (0.15 + smoothVol * 0.25) + ")");
-    cg.addColorStop(0.5, baseColor + (0.05 + smoothVol * 0.1) + ")");
-    cg.addColorStop(1, "rgba(0,0,0,0)");
-    
-    ctx.beginPath();
-    ctx.arc(cx, cy, gradR, 0, Math.PI * 2);
-    ctx.fillStyle = cg;
-    ctx.fill();
-  }
-
-  function animate() {
-    time += 0.015;
-    draw(time);
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-})();
 
 
 // ═══════════════════════════════════════════════════════════
@@ -633,7 +469,7 @@ if (btnSend && textInput) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  IMMERSIVE FULL-WIDTH HORIZONTAL PROCEDURAL WAVEFORM ENGINE
+//  IMMERSIVE DNA-STYLE FULL-WIDTH PROCEDURAL WAVEFORM ENGINE
 // ═══════════════════════════════════════════════════════════
 (function initHorizontalWaveform() {
   const canvas = document.getElementById("horizontalWaveform");
@@ -644,6 +480,9 @@ if (btnSend && textInput) {
   let width = window.innerWidth;
   let height = window.innerHeight;
 
+  // ─── Interactive Mic Interface Capture ───
+  const orbMicBtn = document.getElementById("orbMicBtn");
+
   function resize() {
     width = window.innerWidth;
     height = window.innerHeight;
@@ -653,7 +492,29 @@ if (btnSend && textInput) {
     canvas.style.height = height + "px";
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
+    
+    // Re-seed particles if width changes dramatically
+    initParticles();
   }
+
+  // ─── Floating Energy Particles (Cosmic Depth) ───
+  let particles = [];
+  function initParticles() {
+    particles = [];
+    const particleCount = Math.floor(width * 0.03); // responsive count
+    for (let i = 0; i < Math.min(40, Math.max(15, particleCount)); i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: Math.random() * 1.8 + 0.8,
+        speedX: (Math.random() - 0.5) * 0.25,
+        speedY: (Math.random() - 0.5) * 0.25,
+        alpha: Math.random() * 0.4 + 0.1,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
   resize();
 
   let resizeTimer;
@@ -662,33 +523,33 @@ if (btnSend && textInput) {
     resizeTimer = setTimeout(resize, 150);
   });
 
-  // State configuration mapping
+  // Atmospheric configurations (Slower speeds, deeper frequencies, thick volumetric scaling)
   const states = {
     idle: {
-      amp: 15, freq: 0.002, spd: 0.012, op: 0.28,
+      amp: 12, freq: 0.0018, spd: 0.003, op: 0.32, thickness: 7.0,
       c1: [37, 99, 235],  // Deep Blue
       c2: [139, 92, 246] // Soft Violet
     },
     listening: {
-      amp: 35, freq: 0.006, spd: 0.045, op: 0.65,
+      amp: 30, freq: 0.0045, spd: 0.008, op: 0.75, thickness: 9.5,
       c1: [6, 182, 212], // Electric Cyan
       c2: [37, 99, 235]  // Electric Blue
     },
     thinking: {
-      amp: 22, freq: 0.0035, spd: 0.02, op: 0.45,
+      amp: 20, freq: 0.0025, spd: 0.004, op: 0.55, thickness: 8.0,
       c1: [168, 85, 247], // Purple
       c2: [236, 72, 153]  // Magenta
     },
     speaking: {
-      amp: 45, freq: 0.005, spd: 0.035, op: 0.75,
+      amp: 42, freq: 0.0038, spd: 0.006, op: 0.85, thickness: 10.0,
       c1: [6, 182, 212],  // Cyan highlights
-      c2: [139, 92, 246] // Blue+Purple gradient
+      c2: [139, 92, 246] // Blue-Purple gradient
     }
   };
 
-  // Kinetic variables for physics interpolation
+  // Kinetic physics variables
   let cur = {
-    amp: 15, freq: 0.002, spd: 0.012, op: 0.25,
+    amp: 12, freq: 0.0018, spd: 0.003, op: 0.3, thickness: 7.0,
     c1: [37, 99, 235], c2: [139, 92, 246]
   };
 
@@ -698,84 +559,137 @@ if (btnSend && textInput) {
   function draw(t) {
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Interpolate configurations smoothly based on the active AI state
+    // 1. Smooth Parameter Easing Loop
     const target = states[voiceState] || states.idle;
-    const ease = 0.08; // butter-smooth transitions
+    const ease = 0.065; // extremely smooth transitions for calm intelligence
     
-    cur.amp  += (target.amp - cur.amp) * ease;
-    cur.freq += (target.freq - cur.freq) * ease;
-    cur.spd  += (target.spd - cur.spd) * ease;
-    cur.op   += (target.op - cur.op) * ease;
+    cur.amp       += (target.amp - cur.amp) * ease;
+    cur.freq      += (target.freq - cur.freq) * ease;
+    cur.spd       += (target.spd - cur.spd) * ease;
+    cur.op        += (target.op - cur.op) * ease;
+    cur.thickness += (target.thickness - cur.thickness) * ease;
     
-    // Interpolate colors in RGB space
     for (let i = 0; i < 3; i++) {
       cur.c1[i] += (target.c1[i] - cur.c1[i]) * ease;
       cur.c2[i] += (target.c2[i] - cur.c2[i]) * ease;
     }
 
-    // 2. Unified Audio Reactivity Logic
+    // 2. Real-Time Web Audio Calculation
     let audioBoost = 0;
     if (voiceState === "listening") {
-      audioBoost = micVolume * 2.5; // direct microphone scaling
+      audioBoost = micVolume * 2.8;
     } else if (voiceState === "speaking") {
-      // Synthetic spoken-cadence physics for TTS response
-      const speakT = Date.now() / 90;
-      audioBoost = (0.3 + Math.abs(Math.sin(speakT * 0.8) * 0.45 + Math.sin(speakT * 1.6) * 0.25)) * 1.2;
+      const speakT = Date.now() / 110; // slower voice osc envelope
+      audioBoost = (0.25 + Math.abs(Math.sin(speakT * 0.7) * 0.4 + Math.sin(speakT * 1.3) * 0.25)) * 1.1;
     }
-    smoothAudioBoost += (audioBoost - smoothAudioBoost) * 0.18;
+    smoothAudioBoost += (audioBoost - smoothAudioBoost) * 0.12; // slower decay for inertia
 
-    // 3. Setup screen compositing and bloom glow
+    // ─── Central Interactive Mic Button Pulse ───
+    if (orbMicBtn) {
+      const micPulse = 1 + smoothAudioBoost * 0.18;
+      orbMicBtn.style.transform = `translate(-50%, -50%) scale(${micPulse})`;
+      
+      if (voiceState === "listening") {
+        const shadowBlur = 20 + smoothAudioBoost * 35;
+        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 200, 255, ${0.4 + smoothAudioBoost * 0.5})`;
+      } else if (voiceState === "speaking") {
+        const shadowBlur = 20 + smoothAudioBoost * 35;
+        orbMicBtn.style.boxShadow = `0 0 ${shadowBlur}px rgba(0, 240, 120, ${0.4 + smoothAudioBoost * 0.5})`;
+      } else if (voiceState === "thinking") {
+        orbMicBtn.style.boxShadow = `0 0 24px rgba(140, 80, 255, 0.4)`;
+      } else {
+        orbMicBtn.style.boxShadow = "";
+      }
+    }
+
+    // 3. Layered Blending Setup
     ctx.globalCompositeOperation = "screen";
-    const colorL = `rgb(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])})`;
-    const colorR = `rgb(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])})`;
+    const baseColor1 = `rgb(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])})`;
     
-    ctx.shadowColor = colorL;
-    ctx.shadowBlur = 25 * (cur.op + smoothAudioBoost * 0.3);
-
-    // Render 4 overlapping, offset sinusoidal ribbon ribbons
-    const layers = 4;
     const cy = height / 2;
 
-    for (let j = 0; j < layers; j++) {
-      ctx.beginPath();
+    // 4. Draw Floating Energy Particles (Background Layer)
+    particles.forEach((p) => {
+      p.x += p.speedX;
+      p.y += p.speedY + Math.sin(t * 0.002 + p.phase) * 0.08;
       
-      const opacityScale = (1 - (j * 0.15)) * cur.op;
-      const layerGrad = ctx.createLinearGradient(0, 0, width, 0);
-      layerGrad.addColorStop(0, `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, 0)`);
-      layerGrad.addColorStop(0.3, `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, ${opacityScale})`);
-      layerGrad.addColorStop(0.7, `rgba(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])}, ${opacityScale})`);
-      layerGrad.addColorStop(1, `rgba(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])}, 0)`);
+      // Re-wrap screens
+      if (p.x < 0) p.x = width;
+      if (p.x > width) p.x = 0;
+      if (p.y < 0) p.y = height;
+      if (p.y > height) p.y = 0;
 
-      ctx.strokeStyle = layerGrad;
-      ctx.lineWidth = 1.5 + (j * 0.5) + (smoothAudioBoost * 1.5);
+      // Pulse opacity gently
+      const finalAlpha = p.alpha * (0.3 + Math.sin(t * 0.01 + p.phase) * 0.2) * cur.op;
+      
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, ${finalAlpha})`;
+      ctx.fill();
+    });
 
-      // Offsets that decouple standard movement speeds to make motion cinematic
-      const phaseOffset = j * (Math.PI * 0.5);
-      const layerSpeedMultiplier = 1 + j * 0.15;
-      const layerFreqMultiplier = 1 - j * 0.12;
+    // 5. DNA Double Helix Strand Rendering
+    // We render 2 major intertwining anti-phase strands + 1 core energy strand.
+    // Rendering in a dual-pass loop creates volumetric tubes (wide glow pass + sharp core pass).
+    
+    const strands = [
+      { phase: 0, freqMult: 1.0, ampMult: 1.0 },                 // Strand A
+      { phase: Math.PI, freqMult: 1.0, ampMult: 1.0 },           // Strand B (Intertwining DNA)
+      { phase: Math.PI * 0.5, freqMult: 1.5, ampMult: 0.45 }     // Core connective ribbon
+    ];
 
-      // Trace dynamic sine wave across width
-      const step = 6; // step size in pixels for precision + perf
+    strands.forEach((strand) => {
+      // Trace geometry once
+      const points = [];
+      const step = 6;
       for (let x = 0; x <= width; x += step) {
-        // Sine Envelope: tapers deflection to 0 at exact edges so container boundary is invisible
-        const envelope = Math.pow(Math.sin((x / width) * Math.PI), 1.8);
+        const envelope = Math.pow(Math.sin((x / width) * Math.PI), 2.0); // Sinusoidal tapering
         
-        // Standard Sinusoidal wave formula
-        let waveDeflect = Math.sin((x * cur.freq * layerFreqMultiplier) + t * (cur.spd * layerSpeedMultiplier) + phaseOffset);
+        let wave = Math.sin((x * cur.freq * strand.freqMult) + t * cur.spd + strand.phase);
+        wave += Math.sin((x * cur.freq * 1.8) - t * (cur.spd * 0.7) + strand.phase * 1.4) * 0.22;
         
-        // Introduce second harmonic to break geometric monotony
-        waveDeflect += Math.sin((x * cur.freq * 1.8) - t * (cur.spd * 0.9) + phaseOffset * 2) * 0.35;
-
-        // Incorporate total amplitude (base state + live audio boosts)
-        const finalAmp = (cur.amp + (smoothAudioBoost * 45)) * (1 - j * 0.15);
-        
-        const y = cy + (waveDeflect * finalAmp * envelope);
-
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        const dynamicAmp = (cur.amp + (smoothAudioBoost * 40)) * strand.ampMult;
+        const y = cy + (wave * dynamicAmp * envelope);
+        points.push({ x, y });
       }
+
+      // Create gradient for this strand
+      const strandGrad = ctx.createLinearGradient(0, 0, width, 0);
+      const opBase = cur.op;
+      strandGrad.addColorStop(0, `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, 0)`);
+      strandGrad.addColorStop(0.3, `rgba(${Math.round(cur.c1[0])}, ${Math.round(cur.c1[1])}, ${Math.round(cur.c1[2])}, ${opBase})`);
+      strandGrad.addColorStop(0.7, `rgba(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])}, ${opBase})`);
+      strandGrad.addColorStop(1, `rgba(${Math.round(cur.c2[0])}, ${Math.round(cur.c2[1])}, ${Math.round(cur.c2[2])}, 0)`);
+
+      // PASS 1: Wide Volumetric Glow Pass
+      ctx.beginPath();
+      points.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.strokeStyle = strandGrad;
+      ctx.lineWidth = cur.thickness + (smoothAudioBoost * 5.0);
+      ctx.shadowBlur = 35 * (cur.op + smoothAudioBoost * 0.3);
+      ctx.shadowColor = baseColor1;
+      ctx.globalAlpha = 0.3; // Soft luminous presence
       ctx.stroke();
-    }
+
+      // PASS 2: Sharp Luminous Nucleus Core Pass
+      ctx.beginPath();
+      points.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.lineWidth = 2.5 + (smoothAudioBoost * 0.8);
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#ffffff";
+      ctx.strokeStyle = "#ffffff"; // bright nucleus
+      ctx.globalAlpha = 0.75 * cur.op;
+      ctx.stroke();
+      
+      // Reset alpha
+      ctx.globalAlpha = 1.0;
+    });
   }
 
   function animate() {

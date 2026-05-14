@@ -200,29 +200,10 @@ body {
   margin-top: 40px;
 }
 
-.orb-top-glow {
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 280px;
-  height: 150px;
-  pointer-events: none;
-  background: radial-gradient(ellipse, rgba(60,120,255,0.22) 0%, transparent 70%);
-  filter: blur(20px);
-}
-
 .orb-wrapper {
   position: relative;
   width: 280px;
   height: 280px;
-}
-
-.orb-wrapper canvas {
-  width: 280px;
-  height: 280px;
-  position: relative;
-  z-index: 10;
 }
 
 /* ─── Orb Centre Mic Button ─── */
@@ -275,28 +256,7 @@ body {
   opacity: 0.9;
 }
 
-/* ─── Floor Glow ─── */
-.orb-floor-glow {
-  position: absolute;
-  bottom: -70px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 420px;
-  height: 220px;
-  filter: blur(34px);
-  pointer-events: none;
-  transition: background 0.5s;
-  background: radial-gradient(ellipse, rgba(37,99,235,0.5) 0%, rgba(20,60,200,0.18) 45%, transparent 72%);
-}
-.orb-floor-glow.listening {
-  background: radial-gradient(ellipse, rgba(0,200,255,0.55) 0%, transparent 70%);
-}
-.orb-floor-glow.thinking {
-  background: radial-gradient(ellipse, rgba(140,80,255,0.48) 0%, transparent 70%);
-}
-.orb-floor-glow.speaking {
-  background: radial-gradient(ellipse, rgba(0,220,120,0.45) 0%, transparent 70%);
-}
+
 
 /* ─── CTA / Speak Button ─── */
 .cta-area {
@@ -541,9 +501,6 @@ body {
   /* Orb — scaled down */
   .orb-area { margin-top: 28px; }
   .orb-wrapper { width: 220px; height: 220px; }
-  .orb-wrapper canvas { width: 220px; height: 220px; }
-  .orb-top-glow { width: 200px; height: 110px; }
-  .orb-floor-glow { width: 280px; height: 140px; bottom: -50px; }
 
   /* Orb mic button — bigger for touch */
   .orb-mic-btn {
@@ -630,9 +587,6 @@ body {
 
   .orb-area { margin-top: 20px; }
   .orb-wrapper { width: 180px; height: 180px; }
-  .orb-wrapper canvas { width: 180px; height: 180px; }
-  .orb-top-glow { width: 160px; height: 90px; }
-  .orb-floor-glow { width: 220px; height: 110px; bottom: -40px; }
 
   .orb-mic-btn { width: 48px; height: 48px; }
 
@@ -657,9 +611,7 @@ body {
 /* Landscape mobile */
 @media (max-height: 500px) and (orientation: landscape) {
   .orb-wrapper { width: 160px; height: 160px; }
-  .orb-wrapper canvas { width: 160px; height: 160px; }
   .orb-area { margin-top: 16px; }
-  .orb-floor-glow { width: 200px; height: 100px; bottom: -30px; }
   .hero-card { padding: 20px 16px 0; }
   .cta-area { margin-top: 12px; margin-bottom: 12px; }
   .features-grid { grid-template-columns: repeat(2, 1fr); margin-top: 16px; }

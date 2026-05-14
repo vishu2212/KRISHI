@@ -19,6 +19,65 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ─── Ambient Fullscreen Voice Waves ─── */
+.voice-wave-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1; /* above background glow, but behind main UI container which is z-index 10 */
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.voice-wave-gif {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  filter: brightness(0.4) contrast(1.1) saturate(0.9);
+  opacity: 0.85;
+  transition: filter 0.4s ease, transform 0.4s ease;
+}
+
+/* Vignette overlay to feather the edges perfectly so it never appears embedded */
+.voice-wave-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(7,9,26,0) 40%, rgba(7,9,26,0.4) 70%, #07091a 100%);
+  pointer-events: none;
+}
+
+/* Active animation states */
+.voice-wave-container.active {
+  opacity: 1;
+  transform: scale(1.0);
+}
+
+.voice-wave-container.listening .voice-wave-gif {
+  filter: brightness(0.75) contrast(1.3) drop-shadow(0 0 30px rgba(0, 200, 255, 0.5));
+}
+
+.voice-wave-container.speaking .voice-wave-gif {
+  filter: brightness(0.7) contrast(1.25) drop-shadow(0 0 30px rgba(0, 240, 120, 0.4));
+}
+
+.voice-wave-container.thinking .voice-wave-gif {
+  filter: brightness(0.5) contrast(1.1) blur(2px);
+  opacity: 0.7;
+}
+
 /* ─── Bottom Ambient Glow ─── */
 .bottom-glow {
   position: fixed;
@@ -37,9 +96,11 @@ body {
 .page-container {
   position: relative;
   z-index: 10;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 32px 20px;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
 }
 
 /* ─── Navbar ─── */
@@ -52,7 +113,9 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-  margin-bottom: 40px;
+  width: 92%;
+  max-width: 900px;
+  margin: 24px auto;
   animation: fadeUp 0.5s ease-out 0.1s both;
 }
 
@@ -113,11 +176,18 @@ body {
 
 /* ─── Hero Card ─── */
 .hero-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   background: linear-gradient(160deg, #0d1535 0%, #0a0f28 40%, #06081a 100%);
-  border: 1px solid rgba(100,140,255,0.12);
-  border-radius: 28px;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
-  padding: 56px 32px 0;
+  padding: 40px 20px;
+  width: 100%;
+  margin: 0;
   animation: fadeUp 0.5s ease-out 0.25s both;
 }
 
@@ -361,10 +431,9 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin-top: 40px;
+  margin: 40px auto 60px;
   max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 90%;
   animation: fadeUp 0.5s ease-out 0.45s both;
 }
 
@@ -452,8 +521,8 @@ body {
 
 /* Tablet & small desktop */
 @media (max-width: 768px) {
-  .page-container { padding: 20px 14px; }
-  .hero-card { padding: 40px 20px 0; border-radius: 22px; }
+  .page-container { padding: 0; }
+  .hero-card { padding: 32px 16px; border-radius: 0; }
   .features-grid { gap: 12px; }
   .feature-card { padding: 22px; }
   .orb-floor-glow { width: 360px; height: 180px; }
@@ -461,12 +530,12 @@ body {
 
 /* Mobile */
 @media (max-width: 640px) {
-  .page-container { padding: 14px 10px; }
+  .page-container { padding: 0; }
 
   /* Navbar — compact */
   .nav-pill {
     padding: 8px 14px;
-    margin-bottom: 24px;
+    margin: 16px auto 24px;
     gap: 6px;
   }
   .nav-brand { display: none; }
@@ -481,8 +550,8 @@ body {
 
   /* Hero */
   .hero-card {
-    padding: 28px 14px 0;
-    border-radius: 18px;
+    padding: 24px 12px;
+    border-radius: 0;
   }
   .hero-title { font-size: clamp(22px, 6vw, 32px); }
 
@@ -560,9 +629,9 @@ body {
 
 /* Small phones (iPhone SE, Galaxy S series) */
 @media (max-width: 380px) {
-  .page-container { padding: 10px 8px; }
+  .page-container { padding: 0; }
 
-  .nav-pill { padding: 6px 10px; margin-bottom: 18px; }
+  .nav-pill { padding: 6px 10px; margin: 12px auto 18px; }
   .try-btn,
   .ghost-btn {
     padding: 7px 10px;
@@ -570,9 +639,9 @@ body {
   }
 
   .hero-card {
-    padding: 22px 10px 0;
-    border-radius: 14px;
-    border-width: 1px;
+    padding: 20px 8px;
+    border-radius: 0;
+    border-width: 0;
   }
   .hero-title { font-size: clamp(18px, 5.5vw, 26px); }
 

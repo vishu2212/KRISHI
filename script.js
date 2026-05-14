@@ -15,6 +15,8 @@ const feedbackArea  = document.getElementById("feedbackArea");
 const transcriptBox = document.getElementById("transcriptBox");
 const errorBox      = document.getElementById("errorBox");
 const navTryBtn     = document.getElementById("navTryBtn");
+const voiceWaveContainer = document.getElementById("voiceWaveContainer");
+const voiceWaveGif = document.getElementById("voiceWaveGif");
 
 // ─── STATE ───────────────────────────────────────────────
 let voiceState  = "idle"; // idle | listening | thinking | speaking
@@ -23,6 +25,53 @@ let reply       = "";
 let history     = [];
 let recognition = null;
 let lastFinal   = "";
+
+// ─── WEB AUDIO API FOR REAL-TIME WAVE MOTION ─────────────
+let audioCtx  = null;
+let analyser  = null;
+let dataArray = null;
+let micVolume = 0;
+
+// ─── HANDS-FREE WAKE WORD DETECTION ─────────────────────
+let wakeWordRecognition = null;
+let isWakeEnabled       = false;
+
+async function initAudioContext() {
+  if (audioCtx) return;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContextClass();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 128;
+    const bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+
+    function updateVolume() {
+      if (voiceState === "listening" && analyser) {
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+        const avg = sum / dataArray.length;
+        micVolume = avg / 255.0; // scale 0.0 -> 1.0
+      } else {
+        micVolume = 0;
+      }
+      requestAnimationFrame(updateVolume);
+    }
+    updateVolume();
+  } catch (e) { console.warn("AudioContext failed:", e); }
+}
+
+async function startMicCapture() {
+  await initAudioContext();
+  if (!audioCtx || !analyser) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const source = audioCtx.createMediaStreamSource(stream);
+    source.connect(analyser);
+    if (audioCtx.state === "suspended") await audioCtx.resume();
+  } catch (e) { console.error("Mic capture error:", e); }
+}
 
 const STATUS_MAP = {
   idle:      "Speak with KIYARI AI",
@@ -145,11 +194,20 @@ const gameState = {
     // Draw depth-sorted particles
     const projected = points.map(pt => ({ ...project(pt.x, pt.y, pt.z, rot), s: pt.s }));
     projected.sort((a, b) => a.z - b.z);
+
+    // Calculate reactive amplitude for listening animation
+    const audioBoost = (st === "listening") ? micVolume * 2.2 : 0;
+
     projected.forEach(q => {
       const depth = (q.z + 1) / 2;
       const alpha = 0.12 + depth * 0.78;
       const ds    = q.s * (0.35 + depth * 0.95);
-      const boost = st === "speaking" ? 1 + Math.sin(t*8 + q.x*10) * 0.3 : 1;
+      
+      // Wave motion formula combining sine ripples with voice amplitude
+      const boost = st === "speaking" 
+        ? 1 + Math.sin(t*8 + q.x*10) * 0.3 
+        : 1 + audioBoost * (1 + Math.sin(t*6 + q.x*8) * 0.3);
+
       ctx.beginPath();
       if (depth > 0.72) {
         const g = ctx.createRadialGradient(q.x, q.y, 0, q.x, q.y, ds*2.8);
@@ -193,10 +251,31 @@ const gameState = {
 function setVoiceState(newState) {
   voiceState = newState;
 
+  // Toggle visual wave overlay based on activity
+  if (voiceWaveContainer) {
+    voiceWaveContainer.className = "voice-wave-container " + newState;
+    if (newState !== "idle") {
+      voiceWaveContainer.classList.add("active");
+    }
+  }
+
+  // If transitioning away from idle, disable passive listener to prevent overlap
+  if (newState !== "idle" && wakeWordRecognition) {
+    try { wakeWordRecognition.stop(); } catch (_) {}
+    isWakeEnabled = false;
+  }
+
   // Update CTA button
   speakBtnLabel.textContent = STATUS_MAP[newState];
   speakBtn.className = "speak-btn " + newState;
   pdot.className     = "pdot " + newState;
+
+  // Auto-restart wake word detection upon returning to idle state
+  if (newState === "idle" && !isWakeEnabled) {
+    setTimeout(() => {
+      if (voiceState === "idle") startWakeWordDetection();
+    }, 600);
+  }
 
   // Update orb mic button
   orbMicBtn.className = "orb-mic-btn " + newState;
@@ -354,11 +433,105 @@ async function askAI(userText) {
 
 
 // ═══════════════════════════════════════════════════════════
-//  WEB SPEECH RECOGNITION
+//  HANDS-FREE WAKE WORD LISTENER
 // ═══════════════════════════════════════════════════════════
-function startListening() {
+function startWakeWordDetection() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+
+  // Clear out any stale instances
+  if (wakeWordRecognition) {
+    try { wakeWordRecognition.stop(); } catch (_) {}
+  }
+
+  isWakeEnabled = true;
+  const wr = new SR();
+  wr.lang = "en-IN";
+  // Set continuous false for low-latency phrase capturing & pristine memory usage
+  wr.continuous = false; 
+  wr.interimResults = true;
+  wakeWordRecognition = wr;
+
+  wr.onresult = (e) => {
+    if (voiceState !== "idle") return;
+    
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const phrase = e.results[i][0].transcript.toLowerCase().trim();
+      console.log("[Hands-Free Watchdog]: heard -> '" + phrase + "'");
+
+      // Dynamic phonetic triggers targeting 'Krishi' and 'Kiyari' variant interpretations
+      const triggerTerms = [
+        "krishi", "krushi", "rishi", "krishna", "krish", "kishi", "christie", "chrissy", "christi",
+        "kiyari", "kyari", "kiari", "kyare", "kiare", "khari", "cari", "tiari", "kiara", "kieri"
+      ];
+
+      // High-sensitivity detection matrix
+      const matched = triggerTerms.some(term => phrase.includes(term));
+
+      if (matched) {
+        console.log("🚀 [WAKE ACTIVATED]: Trigger matched on '" + phrase + "'");
+        wr.stop();
+        isWakeEnabled = false;
+        
+        // Transition to Thinking to show immediate visual response
+        setVoiceState("thinking");
+        setTimeout(() => {
+          startListening();
+        }, 350);
+        break;
+      }
+    }
+  };
+
+  wr.onerror = (e) => {
+    // Suppress passive "no-speech" logs to prevent terminal clutter
+    if (e.error !== "no-speech" && e.error !== "aborted") {
+      console.warn("[Wake Watchdog Warning]:", e.error);
+    }
+    if (e.error === "not-allowed") {
+      isWakeEnabled = false;
+    }
+  };
+
+  wr.onend = () => {
+    // Auto-cycle loop with a safe restart buffer to bypass browser-shell throttles
+    if (isWakeEnabled && voiceState === "idle") {
+      setTimeout(() => {
+        try {
+          if (isWakeEnabled && voiceState === "idle") wr.start();
+        } catch (_) {}
+      }, 250);
+    }
+  };
+
+  try {
+    wr.start();
+    console.log("%c🎙️ [Hands-Free Active]: Listening silently for 'Hey Krishi' / 'Hey Kiyari'...", "color: #2563eb; font-weight: bold; font-size: 12px;");
+  } catch (_) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VOICE ASSISTANT ENGINE LAUNCHER
+// ═══════════════════════════════════════════════════════════
+// Added specialized voiceAssistant wrapper mapping wake word detection to click interaction compliance.
+function voiceAssistant() {
+  initAudioContext();
+  if (voiceState === "idle") {
+    startWakeWordDetection();
+  }
+}
+document.addEventListener("click", voiceAssistant, { once: true });
+
+
+// ═══════════════════════════════════════════════════════════
+//  WEB SPEECH RECOGNITION (Interactive Session)
+// ═══════════════════════════════════════════════════════════
+async function startListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { showError("Speech recognition not supported in this browser."); return; }
+
+  // Initialize Web Audio stream to feed visual wave reactivity
+  await startMicCapture();
 
   synth.cancel();
   clearFeedback();
@@ -443,3 +616,72 @@ if (btnSend && textInput) {
     if (e.key === "Enter") btnSend.click();
   });
 }
+
+// ═══════════════════════════════════════════════════════════
+//  FULLSCREEN WAVE VISUAL REACTIVITY SYSTEM
+// ═══════════════════════════════════════════════════════════
+function updateVoiceWaveAnimation() {
+  if (!voiceWaveGif) {
+    requestAnimationFrame(updateVoiceWaveAnimation);
+    return;
+  }
+
+  let currentVolume = 0; // 0.0 to 1.0 normalized range for reactive scale
+
+  if (voiceState === "listening") {
+    // Read live normalized volume from the active mic capture
+    currentVolume = micVolume;
+  } else if (voiceState === "speaking") {
+    // Synthesize premium procedural speaker physics for TTS audio
+    // Uses sine wave interference logic (mimicking real spoken cadence)
+    const t = Date.now() / 100;
+    let proceduralOsc = Math.sin(t * 0.75) * 0.4 + Math.sin(t * 1.4) * 0.35 + Math.sin(t * 2.2) * 0.25;
+    // Map to a nice positive amplitude bound
+    currentVolume = 0.25 + Math.abs(proceduralOsc) * 0.5;
+  } else if (voiceState === "thinking") {
+    // Medium frequency ripple for processing cycles
+    currentVolume = 0.08 + Math.sin(Date.now() / 200) * 0.03;
+  } else {
+    // Slow, ambient breathing cycle while idle
+    currentVolume = Math.sin(Date.now() / 2000) * 0.015;
+  }
+
+  // Prevent excessive negative scaling or boundaries
+  currentVolume = Math.max(0, Math.min(1.0, currentVolume));
+
+  // Apply fluid transform logic (scale & subtle rotation oscillation)
+  let scaleBase = 1.0;
+  let brightnessMult = 1.0;
+  
+  if (voiceState === "speaking" || voiceState === "listening") {
+    // Fluid bounce & pop reactive mapping
+    scaleBase = 1.02 + (currentVolume * 0.08);
+    brightnessMult = 0.9 + (currentVolume * 0.7); // Go brighter based on volume
+    
+    const angleOsc = Math.sin(Date.now() / 1000) * 0.4; // slow rotation wobble
+    voiceWaveGif.style.transform = `scale(${scaleBase}) rotate(${angleOsc}deg)`;
+    
+    // Smooth dynamic color/shadow modulation for premium presence
+    const glowRadius = 15 + (currentVolume * 35);
+    const themeColor = voiceState === "listening" ? "0, 200, 255" : "0, 240, 120";
+    voiceWaveGif.style.filter = `brightness(${brightnessMult}) contrast(1.3) drop-shadow(0 0 ${glowRadius}px rgba(${themeColor}, 0.5)) saturate(1.15)`;
+    voiceWaveGif.style.transition = "none"; // raw frame speed for instant response
+  } else if (voiceState === "thinking") {
+    scaleBase = 1.01 + (currentVolume * 0.03);
+    voiceWaveGif.style.transform = `scale(${scaleBase})`;
+    voiceWaveGif.style.filter = "brightness(0.65) contrast(1.15) blur(1px) saturate(0.9)";
+    voiceWaveGif.style.transition = "transform 0.5s ease, filter 0.5s ease";
+  } else {
+    // Idle baseline state
+    scaleBase = 0.99 + currentVolume; // very minimal drift
+    voiceWaveGif.style.transform = `scale(${scaleBase})`;
+    voiceWaveGif.style.filter = "brightness(0.4) contrast(1.05) saturate(0.85)";
+    voiceWaveGif.style.transition = "transform 1.5s ease, filter 1.5s ease";
+  }
+
+  requestAnimationFrame(updateVoiceWaveAnimation);
+}
+
+// Initialize the rendering loop immediately
+requestAnimationFrame(updateVoiceWaveAnimation);
+

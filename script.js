@@ -543,30 +543,30 @@ if (btnSend && textInput) {
     resizeTimer = setTimeout(resize, 150);
   });
 
-  // V3 Atmospheric configurations (Optimized for Light Nature Theme)
+  // V3 Atmospheric configurations (Refined Green-Tech Nature Harmonies)
   const states = {
     idle: {
-      amp: 11, freq: 0.0013, spd: 0.0022, op: 0.65, thickness: 9.5,
-      c1: [76, 175, 80], c2: [255, 213, 79] // Sprout Green to Sun Yellow
+      amp: 15, freq: 0.0012, spd: 0.0020, op: 0.68, thickness: 9.5,
+      c1: [102, 187, 106], c2: [174, 213, 129] // Soft Sprout Green to Warm Yellow-Green
     },
     listening: {
-      amp: 24, freq: 0.0030, spd: 0.0055, op: 0.85, thickness: 14.0,
-      c1: [100, 181, 246], c2: [38, 198, 218] // Flowing Rain Water Blue to Aqua Teal
+      amp: 30, freq: 0.0028, spd: 0.0050, op: 0.88, thickness: 14.5,
+      c1: [76, 175, 80], c2: [0, 229, 255] // Attentive Bright Green to Fresh Cyan Highlights
     },
     thinking: {
-      amp: 16, freq: 0.0017, spd: 0.0035, op: 0.72, thickness: 12.0,
-      c1: [141, 110, 99], c2: [255, 167, 38] // Nutrient Soil Brown to Amber Energy
+      amp: 20, freq: 0.0015, spd: 0.0030, op: 0.75, thickness: 12.5,
+      c1: [139, 195, 74], c2: [255, 193, 7] // Computational Olive Green to Earthy Gold
     },
     speaking: {
-      amp: 32, freq: 0.0026, spd: 0.0045, op: 0.95, thickness: 16.5,
-      c1: [255, 213, 79], c2: [255, 112, 67] // Golden Harvest Yellow to Sunlight Orange
+      amp: 40, freq: 0.0024, spd: 0.0040, op: 0.95, thickness: 17.0,
+      c1: [198, 255, 0], c2: [255, 213, 79] // Conversational Luminous Lime to Golden Amber Burst
     }
   };
 
   // Kinetic easing system parameters
   let cur = {
-    amp: 11, freq: 0.0013, spd: 0.0022, op: 0.65, thickness: 9.5,
-    c1: [76, 175, 80], c2: [255, 213, 79]
+    amp: 15, freq: 0.0012, spd: 0.0020, op: 0.68, thickness: 9.5,
+    c1: [102, 187, 106], c2: [174, 213, 129]
   };
 
   let time = 0;

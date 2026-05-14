@@ -11,7 +11,7 @@
   --accent: #64B5F6;         /* Rain/Climate Blue */
   --earth: #6D4C41;          /* Soil Brown Base */
   --earth-dark: #3e2723;     /* Rich Nutrient Soil for heavy text */
-  --glass-light: rgba(255, 255, 255, 0.55);
+  --glass-light: rgba(255, 255, 255, 0.45);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -75,6 +75,20 @@ body {
   pointer-events: none;
 }
 
+/* ─── Ambient Environment Breathing Animation ─── */
+@keyframes ambientBreath {
+  0%, 100% { 
+    transform: translateX(-50%) scale(1); 
+    opacity: 0.75; 
+    filter: blur(50px); 
+  }
+  50% { 
+    transform: translateX(-50%) scale(1.15); 
+    opacity: 0.95; 
+    filter: blur(65px); 
+  }
+}
+
 /* ─── Bottom Ambient Glow ─── */
 .bottom-glow {
   position: fixed;
@@ -87,6 +101,8 @@ body {
   z-index: 0;
   background: radial-gradient(ellipse, rgba(76,175,80,0.15) 0%, rgba(255,213,79,0.1) 50%, transparent 75%);
   filter: blur(50px);
+  will-change: transform, opacity, filter;
+  animation: ambientBreath 14s ease-in-out infinite;
 }
 
 /* ─── Page Container ─── */
@@ -461,11 +477,11 @@ body {
   flex: 1;
   padding: 12px 18px;
   border-radius: 12px;
-  border: 1.5px solid rgba(109,76,65,0.2);
+  border: 1px solid rgba(109,76,65,0.08); /* Thinner, softer, lighter border */
   outline: none;
-  background: rgba(109,76,65,0.04); /* Subtle Soil texture simulation */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.35); /* Softer white-translucent backing */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--earth-dark);
   font-family: inherit;
   font-size: 14px;
@@ -473,19 +489,19 @@ body {
   transition: all 0.3s;
 }
 .text-input-area input::placeholder {
-  color: rgba(109,76,65,0.45);
+  color: rgba(109,76,65,0.40);
 }
 .text-input-area input:focus {
   border-color: var(--secondary);
-  box-shadow: 0 0 12px rgba(76, 175, 80, 0.2);
-  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 16px rgba(76, 175, 80, 0.15);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .send-btn {
   padding: 12px 20px;
   border-radius: 12px;
   border: none;
-  background: var(--earth);
+  background: rgba(109, 76, 65, 0.85); /* Lighter transparent brown anchor */
   color: white;
   font-family: inherit;
   font-size: 13.5px;

@@ -369,15 +369,12 @@ body {
   z-index: 10;
 }
 
-/* ─── Feature Cards ─── */
+/* ─── Feature Cards (Hidden to elevate ambient, immersive conversational presence) ─── */
 .features-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin: 40px auto 60px;
-  max-width: 640px;
-  width: 90%;
-  animation: fadeUp 0.5s ease-out 0.45s both;
+  display: none; /* Pruned to remove SaaS/website clutter */
+}
+#navTryBtn {
+  display: none !important; /* Removed redundant SaaS-style trigger */
 }
 
 .feature-card {

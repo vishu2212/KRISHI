@@ -17,6 +17,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  touch-action: manipulation; /* Fast mobile taps & prevent accidental pinch-zoom */
 }
 
 /* ─── Ambient Fullscreen Voice Waves ─── */
@@ -46,6 +47,8 @@ body {
   filter: brightness(0.4) contrast(1.1) saturate(0.9);
   opacity: 0.85;
   transition: filter 0.4s ease, transform 0.4s ease;
+  will-change: transform, filter; /* Promote to dedicated mobile GPU compositing layer */
+  transform: translateZ(0); /* Force hardware acceleration */
 }
 
 /* Vignette overlay to feather the edges perfectly so it never appears embedded */
@@ -98,6 +101,7 @@ body {
   z-index: 10;
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh; /* Modern responsive dynamic viewport height for mobile browsers */
   display: flex;
   flex-direction: column;
   padding: 0;

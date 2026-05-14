@@ -31,6 +31,7 @@ let audioCtx  = null;
 let analyser  = null;
 let dataArray = null;
 let micVolume = 0;
+let speakVolume = 0;
 
 // ─── HANDS-FREE WAKE WORD DETECTION ─────────────────────
 let wakeWordRecognition = null;
@@ -219,8 +220,15 @@ function speakText(text) {
     utter.voice = selectedVoice;
   }
 
-  utter.onend   = () => setVoiceState("idle");
-  utter.onerror = () => setVoiceState("idle");
+  // Map real-time spoken boundaries to physical volumetric spikes (syllable impulse injection)
+  utter.onboundary = (event) => {
+    if (event.name === "word") {
+      speakVolume = 0.85 + Math.random() * 0.25;
+    }
+  };
+
+  utter.onend   = () => { setVoiceState("idle"); speakVolume = 0; };
+  utter.onerror = () => { setVoiceState("idle"); speakVolume = 0; };
   synth.speak(utter);
 }
 
@@ -578,13 +586,22 @@ if (btnSend && textInput) {
       cur.c2[i] += (target.c2[i] - cur.c2[i]) * ease;
     }
 
+    // Dynamic viscous breathing envelope for thinking state
+    if (voiceState === "thinking") {
+      cur.amp += (Math.sin(t * 0.025) * 0.35); 
+    }
+
     // 2. Real-Time Volume Modulations
     let audioBoost = 0;
     if (voiceState === "listening") {
-      audioBoost = micVolume * 2.4;
+      // Applied dynamic noise-gate & exponential expansion for crisp organic mic reactivity
+      const expansion = Math.pow(micVolume, 1.25) * 3.8;
+      audioBoost = Math.min(1.7, expansion);
     } else if (voiceState === "speaking") {
-      const speakT = Date.now() / 130;
-      audioBoost = (0.2 + Math.abs(Math.sin(speakT * 0.65) * 0.45 + Math.sin(speakT * 1.2) * 0.25)) * 1.05;
+      // Decay the physical syllable impulse exponentially over time
+      speakVolume *= 0.88; 
+      // Blend minimum atmospheric oscillation + the real-time physical word-boundary spikes!
+      audioBoost = (0.15 + Math.abs(Math.sin(t * 0.035) * 0.15)) + speakVolume;
     }
     smoothAudioBoost += (audioBoost - smoothAudioBoost) * 0.10;
 

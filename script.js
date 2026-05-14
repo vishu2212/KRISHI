@@ -124,16 +124,18 @@ function setVoiceState(newState) {
     }, 600);
   }
 
-  // Update orb mic button
-  orbMicBtn.className = "orb-mic-btn " + newState;
+  // Update orb mic button (if present)
+  if (orbMicBtn) {
+    orbMicBtn.className = "orb-mic-btn " + newState;
 
-  // Toggle mic icon / stop icon
-  if (newState === "thinking" || newState === "speaking") {
-    orbMicIcon.style.display  = "none";
-    orbStopIcon.style.display = "block";
-  } else {
-    orbMicIcon.style.display  = "block";
-    orbStopIcon.style.display = "none";
+    // Toggle mic icon / stop icon
+    if (newState === "thinking" || newState === "speaking") {
+      if (orbMicIcon) orbMicIcon.style.display  = "none";
+      if (orbStopIcon) orbStopIcon.style.display = "block";
+    } else {
+      if (orbMicIcon) orbMicIcon.style.display  = "block";
+      if (orbStopIcon) orbStopIcon.style.display = "none";
+    }
   }
 
   // Floor glow (if present)
@@ -464,7 +466,9 @@ function handleMicClick() {
 }
 
 // Wire all clickable elements
-orbMicBtn.addEventListener("click", () => { console.log("orbMicBtn clicked, state:", voiceState); handleMicClick(); });
+if (orbMicBtn) {
+  orbMicBtn.addEventListener("click", () => { console.log("orbMicBtn clicked, state:", voiceState); handleMicClick(); });
+}
 speakBtn.addEventListener("click", () => { console.log("speakBtn clicked, state:", voiceState); handleMicClick(); });
 navTryBtn.addEventListener("click", () => { console.log("navTryBtn clicked, state:", voiceState); handleMicClick(); });
 

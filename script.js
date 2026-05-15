@@ -362,6 +362,7 @@ function startWakeWordDetection() {
       const matched = triggerTerms.some(term => phrase.includes(term));
 
       if (matched) {
+        if (navigator.vibrate) navigator.vibrate([30, 40, 30]); // Heartbeat vibration pulse
         console.log("🚀 [WAKE ACTIVATED]: Trigger matched on '" + phrase + "'");
         wr.stop();
         isWakeEnabled = false;
@@ -518,6 +519,8 @@ async function startListening() {
 //  CLICK HANDLERS
 // ═══════════════════════════════════════════════════════════
 function handleMicClick() {
+  if (navigator.vibrate) navigator.vibrate(15); // Tactile premium micro-click
+  
   if (voiceState === "idle") {
     startListening();
     return;

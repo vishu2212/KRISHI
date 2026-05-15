@@ -489,7 +489,13 @@ body {
 
 /* Mobile */
 @media (max-width: 640px) {
-  .page-container { padding: 0; }
+  .page-container { 
+    padding: 0;
+    height: 100dvh;
+    overflow: hidden; /* Completely lock page scroll for app-like immersive experience */
+    display: flex;
+    flex-direction: column;
+  }
 
   /* Ambient Glow override */
   .bottom-glow { 
@@ -501,23 +507,27 @@ body {
 
   /* Ambient Identity — compact */
   .ambient-identity {
-    top: 20px;
+    top: 16px;
     left: 20px;
     gap: 8px;
   }
-  .logo-mark { width: 20px; height: 20px; }
-  .identity-label { font-size: 12px; }
+  .logo-mark { width: 18px; height: 18px; }
+  .identity-label { font-size: 11px; letter-spacing: 0.06em; }
 
-  /* Hero */
+  /* Hero — flex center within the locked mobile viewport */
   .hero-card {
-    padding: 24px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px;
     border-radius: 0;
   }
-  .hero-title { font-size: clamp(22px, 6vw, 32px); }
+  .hero-title { font-size: clamp(22px, 6vw, 30px); }
 
   /* Orb — scaled down */
-  .orb-area { margin-top: 28px; }
-  .orb-wrapper { width: 220px; height: 220px; }
+  .orb-area { margin-top: 20px; }
+  .orb-wrapper { width: 200px; height: 200px; }
 
   /* Orb mic button — bigger for touch */
   .orb-mic-btn {
@@ -528,20 +538,23 @@ body {
   .orb-stop-icon { width: 16px; height: 16px; }
 
   /* CTA */
-  .cta-area { margin-top: 18px; margin-bottom: 18px; }
+  .cta-area { margin-top: 16px; margin-bottom: 16px; }
   .speak-btn {
     padding: 12px 24px;
     font-size: 14px;
     min-height: 48px;
   }
 
-  /* Transcript */
-  .feedback-area { margin-bottom: 24px; padding: 0 8px; }
+  /* Transcript — Locked height with graceful internal scroll to ensure absolute zero screen overflow */
+  .feedback-area { margin-bottom: 20px; padding: 0 8px; }
   .transcript-box {
     padding: 10px 14px;
     font-size: 13px;
     border-radius: 12px;
     max-width: 100%;
+    max-height: 110px; /* Strictly constrain text block size */
+    overflow-y: auto; /* Support internal scrolling for long responses */
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Error */

@@ -134,9 +134,6 @@ function setVoiceState(newState) {
 
   // Auto-restart wake word detection upon returning to idle state
   if (newState === "idle") {
-    // Release exclusive visualizer mic track to prevent hardware locking against SpeechRecognition
-    stopMicCapture();
-    
     if (!isWakeEnabled) {
       setTimeout(() => {
         if (voiceState === "idle") startWakeWordDetection();
@@ -341,6 +338,17 @@ function startWakeWordDetection() {
       const phrase = e.results[i][0].transcript.toLowerCase().trim();
       console.log("[Hands-Free Watchdog]: heard -> '" + phrase + "'");
 
+      // Live UI Telemetry: Show exactly what the microphone hears in real-time on the button
+      speakBtnLabel.innerHTML = `<span style="opacity:0.7">Heard:</span> "${phrase}"`;
+
+      // Reset telemetry back to prompt after 2 seconds of inactivity
+      clearTimeout(window.wakeFeedbackTimer);
+      window.wakeFeedbackTimer = setTimeout(() => {
+        if (voiceState === "idle") {
+          speakBtnLabel.textContent = STATUS_MAP.idle;
+        }
+      }, 2000);
+
       // High-sensitivity phonetic triggers targeting 'hey krishi' (primary) and all variations
       const triggerTerms = [
         "krishi", "hey krishi", "krushi", "rishi", "krishna", "krish", "kishi", "christie", "chrissy", "christi",
@@ -429,6 +437,9 @@ async function voiceAssistant(isFromGesture = false) {
       isWakeEnabled = true; // Override prior passive 'not-allowed' state
       startWakeWordDetection();
     }
+
+    // 3. Warm-up and maintain active getUserMedia track to lock 'Red Dot' high-priority tab context, preventing Speech suspension
+    startMicCapture().catch(e => console.warn("Persistent mic lock failed:", e));
   } catch (e) {
     console.warn("Failed to fully initialize on gesture:", e);
   }

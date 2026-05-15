@@ -194,7 +194,11 @@ function speakText(text) {
   synth.cancel();
   setVoiceState("speaking");
 
-  const utter = new SpeechSynthesisUtterance(text);
+  // Normalize phonetic output: Convert all-caps 'KIYARI' to 'Kiyari' 
+  // so the TTS engine pronounces it as a single word instead of spelling out the letters.
+  const spokenText = text.replace(/\bKIYARI\b/g, "Kiyari");
+
+  const utter = new SpeechSynthesisUtterance(spokenText);
   utter.lang   = "en-US";
   utter.rate   = 1.2;
   utter.pitch  = 1.0;

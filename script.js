@@ -31,6 +31,8 @@ let analyser  = null;
 let dataArray = null;
 let micVolume = 0;
 let speakVolume = 0;
+let micStream = null;
+let micSource = null;
 
 // ─── HANDS-FREE WAKE WORD DETECTION ─────────────────────
 let wakeWordRecognition = null;
@@ -65,10 +67,12 @@ async function initAudioContext() {
 async function startMicCapture() {
   await initAudioContext();
   if (!audioCtx || !analyser) return;
+  if (micStream) return; // Already capturing, prevent redundant streams
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    const source = audioCtx.createMediaStreamSource(stream);
-    source.connect(analyser);
+    micStream = stream;
+    micSource = audioCtx.createMediaStreamSource(stream);
+    micSource.connect(analyser);
     if (audioCtx.state === "suspended") await audioCtx.resume();
   } catch (e) { console.error("Mic capture error:", e); }
 }
@@ -369,22 +373,50 @@ function startWakeWordDetection() {
 // ═══════════════════════════════════════════════════════════
 //  VOICE ASSISTANT ENGINE LAUNCHER
 // ═══════════════════════════════════════════════════════════
-// Added specialized voiceAssistant wrapper mapping wake word detection to click interaction compliance.
+// Specialized voiceAssistant orchestrator that handles transient user gestures robustly.
 let hasAssistantStarted = false;
-function voiceAssistant() {
-  if (hasAssistantStarted) return;
+async function voiceAssistant(isFromGesture = false) {
+  // If it's an interactive trigger and already initialized, skip
+  if (isFromGesture && hasAssistantStarted) return;
+
+  if (!isFromGesture) {
+    // Passive bootstrap attempt (fails safely if permissions not cached)
+    try {
+      initAudioContext();
+      if (voiceState === "idle") startWakeWordDetection();
+    } catch (_) {}
+    return;
+  }
+
+  // A real user gesture occurred! Boot the engine fully.
   hasAssistantStarted = true;
-  initAudioContext();
-  if (voiceState === "idle") {
-    startWakeWordDetection();
+  console.log("🎙️ User interaction detected: Unlocking microphone and engine...");
+
+  try {
+    // Force context creation / resume
+    await initAudioContext();
+    if (audioCtx && audioCtx.state === "suspended") {
+      await audioCtx.resume();
+    }
+    
+    // Proactively warm-up the mic and prompt for permission
+    await startMicCapture();
+
+    if (voiceState === "idle") {
+      isWakeEnabled = true; // Override prior passive 'not-allowed' state
+      startWakeWordDetection();
+    }
+  } catch (e) {
+    console.warn("Failed to fully initialize on gesture:", e);
   }
 }
 
-// Ensure early boot capability on load, with robust click interaction fallback
-window.addEventListener("load", voiceAssistant);
-document.addEventListener("click", voiceAssistant, { once: true });
-// Immediate invoke attempt
-voiceAssistant();
+// Attempt passive boot on window load
+window.addEventListener("load", () => voiceAssistant(false));
+// Establish robust active fallback on the very first document click to guarantee permissions prompt
+document.addEventListener("click", () => voiceAssistant(true), { once: true });
+// Immediate passive attempt
+voiceAssistant(false);
 
 
 // ═══════════════════════════════════════════════════════════

@@ -456,17 +456,30 @@ async function startListening() {
   clearFeedback();
   transcript = "";
   reply      = "";
-  lastFinal  = "";
+
+  // Intelligent Silence/Inactivity timer
+  let silenceTimer = null;
 
   const rec = new SR();
   rec.lang            = "en-IN";
+  // Enable continuous listening to bypass aggressive browser session timeout defaults
+  rec.continuous      = true; 
   rec.interimResults  = true;
   rec.maxAlternatives = 1;
   recognition         = rec;
 
-  rec.onstart = () => setVoiceState("listening");
+  rec.onstart = () => {
+    setVoiceState("listening");
+    // Initial silence guard: Reset to idle if user stays silent for 7 seconds
+    clearTimeout(silenceTimer);
+    silenceTimer = setTimeout(() => {
+      console.log("⏱️ Initial silence timeout reached. Resetting to idle.");
+      rec.stop();
+    }, 7000);
+  };
 
   rec.onerror = (e) => {
+    clearTimeout(silenceTimer);
     // Suppress 'no-speech' and 'aborted' as they are normal silent lifecycle events, not actual hardware errors
     if (e.error === "no-speech" || e.error === "aborted") {
       setVoiceState("idle");
@@ -477,18 +490,26 @@ async function startListening() {
   };
 
   rec.onresult = (e) => {
-    let interim = "";
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) lastFinal += t;
-      else interim += t;
+    // Clear timeout immediately upon voice activity
+    clearTimeout(silenceTimer);
+
+    let accumulated = "";
+    for (let i = 0; i < e.results.length; i++) {
+      accumulated += e.results[i][0].transcript;
     }
-    transcript = lastFinal + interim;
+    transcript = accumulated;
     showTranscript(transcript);
+
+    // Smart Inactivity Reset: Wait 3.0 seconds of silence after any speech before submitting to AI
+    silenceTimer = setTimeout(() => {
+      console.log("⏱️ Pause detected. Submitting final query to AI...");
+      rec.stop();
+    }, 3000); // Generous 3-second tolerance
   };
 
   rec.onend = () => {
-    const final = lastFinal.trim();
+    clearTimeout(silenceTimer);
+    const final = transcript.trim();
     if (final) {
       askAI(final);
     } else {

@@ -387,11 +387,14 @@ function startWakeWordDetection() {
   };
 
   wr.onend = () => {
-    // Auto-cycle loop with a safe restart buffer to bypass browser-shell throttles
+    // Auto-cycle loop: Instantiate a FRESH SpeechRecognition instance upon timeout.
+    // The W3C spec forbids re-calling .start() on a dead instance, so we must recreate it!
     if (isWakeEnabled && voiceState === "idle") {
       setTimeout(() => {
         try {
-          if (isWakeEnabled && voiceState === "idle") wr.start();
+          if (isWakeEnabled && voiceState === "idle") {
+            startWakeWordDetection(); 
+          }
         } catch (_) {}
       }, 250);
     }

@@ -308,8 +308,8 @@ function startWakeWordDetection() {
   isWakeEnabled = true;
   const wr = new SR();
   wr.lang = "en-IN";
-  // Set continuous false for low-latency phrase capturing & pristine memory usage
-  wr.continuous = false; 
+  // Enable continuous mode to maintain ambient persistent listening and prevent server-throttling resets
+  wr.continuous = true; 
   wr.interimResults = true;
   wakeWordRecognition = wr;
 
@@ -320,9 +320,11 @@ function startWakeWordDetection() {
       const phrase = e.results[i][0].transcript.toLowerCase().trim();
       console.log("[Hands-Free Watchdog]: heard -> '" + phrase + "'");
 
-      // Dynamic phonetic triggers targeting 'KIYARI' variant interpretations
+      // High-sensitivity phonetic triggers targeting 'hey kiyari' and all phonemic variants
       const triggerTerms = [
-        "kiyari", "kyari", "kiari", "kyare", "kiare", "khari", "cari", "tiari", "kiara", "kieri", "kiary"
+        "kiyari", "hey kiyari", "hey kyari", "kyari", "kiari", "hey kiari", "kyare", "kiare", "khari", "cari", 
+        "tiari", "kiara", "kieri", "kiary", "carry", "cherry", "query", "keary", "kiri", "kya re", "hey carry", 
+        "hey cherry", "giri", "tiara", "hi kiyari", "he kiyari"
       ];
 
       // High-sensitivity detection matrix
@@ -393,19 +395,20 @@ async function voiceAssistant(isFromGesture = false) {
   console.log("🎙️ User interaction detected: Unlocking microphone and engine...");
 
   try {
-    // Force context creation / resume
-    await initAudioContext();
+    // 1. Touch AudioContext SYNCHRONOUSLY to inherit user gesture activation instantly
+    initAudioContext();
     if (audioCtx && audioCtx.state === "suspended") {
-      await audioCtx.resume();
+      audioCtx.resume().catch(() => {});
     }
     
-    // Proactively warm-up the mic and prompt for permission
-    await startMicCapture();
-
+    // 2. Bootstrap Wake Word SYNCHRONOUSLY to fully capture direct gesture token without microtask splits
     if (voiceState === "idle") {
       isWakeEnabled = true; // Override prior passive 'not-allowed' state
       startWakeWordDetection();
     }
+
+    // 3. Spawn ASYNCHRONOUS mic streamer in background
+    startMicCapture().catch(e => console.warn("Background mic capture deferred:", e));
   } catch (e) {
     console.warn("Failed to fully initialize on gesture:", e);
   }

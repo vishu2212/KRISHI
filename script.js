@@ -78,7 +78,7 @@ async function startMicCapture() {
 }
 
 const STATUS_MAP = {
-  idle:      "Say 'kiyari' to wake up",
+  idle:      "Say 'hey kiyari' to wake up",
   listening: "Listening…",
   thinking:  "Thinking…",
   speaking:  "Speaking…",
@@ -366,7 +366,7 @@ function startWakeWordDetection() {
 
   try {
     wr.start();
-    console.log("%c🎙️ [Hands-Free Active]: Listening silently for 'kiyari'...", "color: #2563eb; font-weight: bold; font-size: 12px;");
+    console.log("%c🎙️ [Hands-Free Active]: Listening silently for 'hey kiyari'...", "color: #2563eb; font-weight: bold; font-size: 12px;");
   } catch (_) {}
 }
 

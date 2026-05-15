@@ -77,6 +77,18 @@ async function startMicCapture() {
   } catch (e) { console.error("Mic capture error:", e); }
 }
 
+function stopMicCapture() {
+  if (micStream) {
+    micStream.getTracks().forEach(track => track.stop());
+    micStream = null;
+    console.log("🎙️ Persistent visualizer mic stream released.");
+  }
+  if (micSource) {
+    try { micSource.disconnect(); } catch (_) {}
+    micSource = null;
+  }
+}
+
 const STATUS_MAP = {
   idle:      "Say 'hey krishi' to wake up",
   listening: "Listening…",
@@ -121,10 +133,15 @@ function setVoiceState(newState) {
   pdot.className     = "pdot " + newState;
 
   // Auto-restart wake word detection upon returning to idle state
-  if (newState === "idle" && !isWakeEnabled) {
-    setTimeout(() => {
-      if (voiceState === "idle") startWakeWordDetection();
-    }, 600);
+  if (newState === "idle") {
+    // Release exclusive visualizer mic track to prevent hardware locking against SpeechRecognition
+    stopMicCapture();
+    
+    if (!isWakeEnabled) {
+      setTimeout(() => {
+        if (voiceState === "idle") startWakeWordDetection();
+      }, 600);
+    }
   }
 
   // Update orb mic button (if present)
@@ -412,9 +429,6 @@ async function voiceAssistant(isFromGesture = false) {
       isWakeEnabled = true; // Override prior passive 'not-allowed' state
       startWakeWordDetection();
     }
-
-    // 3. Spawn ASYNCHRONOUS mic streamer in background
-    startMicCapture().catch(e => console.warn("Background mic capture deferred:", e));
   } catch (e) {
     console.warn("Failed to fully initialize on gesture:", e);
   }
